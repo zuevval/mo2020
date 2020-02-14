@@ -1,3 +1,9 @@
+# Python
+**/__pycache__/
+
+#JetBrains
+**/.idea
+
 ## Core latex/pdflatex auxiliary files:
 *.aux
 *.lof
