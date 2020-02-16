@@ -13,11 +13,11 @@ def prepare_data_from_lectures():
     return A, b, support_vectors
 
 
-def prepare_common_data():
+def prepare_common_data(svecs_idx:int):
     A, b, svecs = prepare_data_from_lectures()
     c = [1, 2, 3, 4]
     ncf = utils.NpCanonicalForm(utils.CanonicalForm(A, b, c))
-    xkN = np.array(svecs[0])
+    xkN = np.array(svecs[svecs_idx])
     n_tests = 10
     return ncf, svecs, xkN, n_tests
 
@@ -44,7 +44,7 @@ def test_split_xkN():
 
 def test_new_AMNk_simple():
     abs_err = 1e-3
-    ncf, _, _, _ = prepare_common_data()
+    ncf, _, _, _ = prepare_common_data(0)
     AMN = ncf.A
     x = [0, 1, 0, 1]
     AMNk, _, _ = simplex.new_AMNk(AMN, np.array(x), 0)
@@ -70,7 +70,7 @@ def test_new_AMNk_simple():
 
 def test_calc_BNkM():
     abs_err = 1e-3
-    ncf, _, _, _ = prepare_common_data()
+    ncf, _, _, _ = prepare_common_data(0)
     A1 = ncf.A[:, [0, 1]]
     A2 = ncf.A[:, [1, 2]]
     A3 = ncf.A[:, [2, 3]]
@@ -84,34 +84,37 @@ def test_cost_function_doesnt_increase():
     """
     ensures that cost function (c^T*x) doesn't increase over iterations
     """
-    ncf, _, xkN, n_tests = prepare_common_data()
-    for _ in range(n_tests):
-        xk_minus1_N, xkN = xkN, simplex.simplex_step(ncf, xkN)
-        assert np.dot(xk_minus1_N, ncf.c) <= np.dot(xkN, ncf.c)
+    for svecs_idx in range(3):
+        ncf, _, xkN, n_tests = prepare_common_data(svecs_idx)
+        for _ in range(n_tests):
+            xk_minus1_N, xkN = xkN, simplex.simplex_step(ncf, xkN)
+            assert np.dot(xk_minus1_N, ncf.c) >= np.dot(xkN, ncf.c)
 
 
 def test_if_vector_in_s():
     """
     checks whether a result of a simplex_step(...) is in S={x|Ax=b, x >= 0}
     """
-    ncf, _, xkN, n_tests = prepare_common_data()
-    abs_error = 1e-3
-    for _ in range(n_tests):
-        xkN = simplex.simplex_step(ncf, xkN)
-        assert np.sum(np.abs(np.matmul(ncf.A, xkN) - ncf.b)) < abs_error
-        assert min(xkN) >= 0  # assert there are no negative components in xkN
+    for svecs_idx in range(3):
+        ncf, _, xkN, n_tests = prepare_common_data(svecs_idx)
+        abs_error = 1e-3
+        for _ in range(n_tests):
+            xkN = simplex.simplex_step(ncf, xkN)
+            assert np.sum(np.abs(np.matmul(ncf.A, xkN) - ncf.b)) < abs_error
+            assert min(xkN) >= 0  # assert there are no negative components in xkN
 
 
 def test_if_vector_support():
     """
     makes sure that a result of a simplex_step(...) belongs to the set of support vectors
     """
-    ncf, svecs, xkN, n_tests = prepare_common_data()
-    abs_error = 1e-3
-    for _ in range(n_tests):
-        xkN = simplex.simplex_step(ncf, xkN)
-        dists = np.array([np.sum(np.square(np.array(sv) - xkN)) for sv in svecs])
-        assert np.min(dists) < abs_error  # assert that exists a support vector close to xkN
+    for svecs_idx in range(3):
+        ncf, svecs, xkN, n_tests = prepare_common_data(svecs_idx)
+        abs_error = 1e-3
+        for _ in range(n_tests):
+            xkN = simplex.simplex_step(ncf, xkN)
+            dists = np.array([np.sum(np.square(np.array(sv) - xkN)) for sv in svecs])
+            assert np.min(dists) < abs_error  # assert that exists a support vector close to xkN
 
 
 def run_all_simplex_tests():
