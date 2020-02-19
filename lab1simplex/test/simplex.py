@@ -47,21 +47,26 @@ def test_new_AMNk_simple():
     ncf, _, _, _ = prepare_common_data(0)
     AMN = ncf.A
     x = [0, 1, 0, 1]
-    AMNk, _, _ = simplex.new_AMNk(AMN, np.array(x), 0)
+    AMNk, _, _ = simplex.new_AMNk(AMN, x, utils.binomial_grid(2, ncf.m - 2), 0)
     for i, j in zip([0, 1], [1, 3]):
         for row in range(len(AMN)):
             assert AMNk[row, i] == AMN[row, j]
     assert abs(np.linalg.det(AMNk)) > abs_err
 
     x = [1, 0, 0, 0]
-    AMNk, _, _ = simplex.new_AMNk(AMN, np.array(x), 0)
+    AMNk, _, _ = simplex.new_AMNk(AMN, x, utils.binomial_grid(3, ncf.m - 1), 0)
+    for i, j in zip([0, 1], [0, 3]):
+        for row in range(len(AMN)):
+            assert AMNk[row, i] == AMN[row, j]
+    assert abs(np.linalg.det(AMNk)) > abs_err
+    AMNk, _, _ = simplex.new_AMNk(AMN, x, utils.binomial_grid(3, ncf.m - 1), 2)
     for i, j in zip([0, 1], [0, 1]):
         for row in range(len(AMN)):
             assert AMNk[row, i] == AMN[row, j]
     assert abs(np.linalg.det(AMNk)) > abs_err
 
     x = [0, 0, 1, 0]
-    AMNk, _, _ = simplex.new_AMNk(AMN, np.array(x), 0)
+    AMNk, _, _ = simplex.new_AMNk(AMN, x, utils.binomial_grid(3, ncf.m - 1), 2)
     for i, j in zip([0, 1], [0, 2]):
         for row in range(len(AMN)):
             assert AMNk[row, i] == AMN[row, j]
