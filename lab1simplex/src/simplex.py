@@ -46,6 +46,7 @@ def simplex_step(cf: NpCanonicalForm, xkN: np.array) -> np.array:
         xkNk = np.array([xkN[i] for i in Nk])
         if len(Nk_plus) == len(Nk) or max([ukNk[i] for i in filter(lambda j: j not in Nk_plus, Nk)]) < 0:
             ukN = [ukNk[list(Nk).index(i)] if i in Nk else 0 for i in range(cf.n)]
+            ukN[jk] = -1
             theta_k = min([xkN[i]/ukN[i] for i in filter(lambda j: ukN[j] > 0, Nk)])
             return xkN - np.multiply(theta_k, ukN)
     return xkN
