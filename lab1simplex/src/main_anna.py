@@ -1,28 +1,17 @@
 import canon
 import dual
-from src import simplex
-from bruteforce import bruteforce
 
 if __name__ == "__main__":
     #original system
-    A = [[-4,2,3], [-2,-2,1], [-1,-1,3]] 
-    b = [8,2,3]
-    c = [2,0,-1] #coefficiens for goal function
+    A = [[1,-2,2,0], [1,2,1,1], [2,1,-4,1], [-1,4,0,-2]] 
+    b = [6,24,30,-6]
+    c = [8,3,4,2] #coefficiens for goal function
     func = "max" #type of a problem
-    MatrixSigns = ["=", "<=", ">="] #matrix restrictions signs
-    VariablesSigns = ["<=", ">=", ""] # "" if no restictions on x
+    MatrixSigns = ["<=", "=", "=", ">="] #matrix restrictions signs
+    VariablesSigns = [">=", "", "", ""] # "" if no restictions on x
 
     #canonical form
     CanonSys = canon.Convert(A,b,c,func,MatrixSigns, VariablesSigns)
-
-    NpCanonForm = simplex.NpCanonicalForm(CanonSys)
-    x = simplex.starting_vector(NpCanonForm)
-    stopIteration = False
-    while not stopIteration:
-        x, stopIteration = simplex.simplex_step(NpCanonForm, x)
-        print(simplex.np.dot(x, NpCanonForm.c))
-
-    print(bruteforce(NpCanonForm))
 
     #dual system
     dual.ConvertToMax(c, func) #always solving ->max

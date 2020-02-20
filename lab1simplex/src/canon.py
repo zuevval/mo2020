@@ -45,7 +45,7 @@ def PrintSystem(A,b,c,x,vectors,w,func, MatrixSigns,VariablesSigns):
             else:
                 print(A[i][j], "x[", j, "]", sep = '', end = '') 
             if j != len(A[i]) - 1:
-                if A[i][j + 1] > 0:
+                if A[i][j + 1] >= 0:
                     print("+", sep = '', end = '')
         if w != []:
             if w[i] > 0:
@@ -74,18 +74,13 @@ def PrintSystem(A,b,c,x,vectors,w,func, MatrixSigns,VariablesSigns):
 def CreateSystem(A,b,c,vectors,w):
     B = []
     k = 0
-    if vectors != []:
-        k = vectors.count(1)
-    if w != []:
-        k = k + w.count(1)
-        k = k + w.count(-1)
 
     for _ in range(len(A)):
         B.append([])
 
     j = 0
     for i in range(len(B)):
-        for j in range(len(B[i]) + k):
+        for j in range(len(A[i])):
             B[i].append(A[i][j])
             if vectors != [] and vectors[j] != 0:
                 B[i].append(-A[i][j])
@@ -112,7 +107,9 @@ def CreateSystem(A,b,c,vectors,w):
     return cf.CanonicalForm(B,b,d)   
             
 def Convert(A,b,c,func,MatrixSigns,VariablesSigns):
-    x = [1,1,1]
+    x = []
+    for i in range(len(c)):
+        x.append(1)
     PrintSystem(A,b,c,x,[],[],func,MatrixSigns,VariablesSigns) #print given system
     w = ConvertToEquals(MatrixSigns) #adding vector w to get rid off <= and >= and make them =
     vectors = CheckVariablesSigns(VariablesSigns, x) #adding vectors u and v to set
