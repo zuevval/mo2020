@@ -1,6 +1,5 @@
 import numpy as np
-import scipy.special
-from src.utils import NpCanonicalForm, binomial_grid
+from src.utils import NpCanonicalForm, binomial_grid, subset_by_index
 
 
 def split_xkN(xkN:np.array) -> (np.array, np.array, np.array, np.array):
@@ -19,15 +18,7 @@ def add_to_Nk(Nk0: np.array,  binom_table: np.ndarray, binom_index: int)->np.arr
     :param binom_index: номер итерации смены базиса от 0 до C[|Nk_plus|,m-|Nk0|]
     :return: индексы из `Nk0`, которые надо добавить к `Nk_plus`, чтобы получить квадратную матрицу
     """
-    res, row, col = [],len(binom_table)-1, len(binom_table[-1])-1
-    while col > 0:
-        if binom_index < binom_table[row, col-1]:
-            res.append(Nk0[row])
-            col -= 1
-        else:
-            binom_index -= binom_table[row, col-1]
-            row -= 1
-    return res
+    return subset_by_index(Nk0, binom_table, binom_index)
 
 
 def new_AMNk(AMN: np.array, xkN:np.array, binom_table:np.ndarray, binom_idx:int) -> (np.array, np.array, np.array):
@@ -44,7 +35,32 @@ def calc_BNkM(AMNk):
     return np.linalg.inv(AMNk)
 
 
-def simplex_step(cf: NpCanonicalForm, xkN: np.array) -> np.array:
+def starting_vector(cf:NpCanonicalForm) -> np.array:
+    binom_table = binomial_grid(cf.n, cf.m)
+    N = np.array(list(range(cf.n)))
+    for idx in range(binom_table[-1, -1]):
+        Nk = subset_by_index(N, binom_table, idx)
+        AMNk = np.array([cf.A[:, i] for i in Nk]).T
+        if np.linalg.det(AMNk) != 0:
+            xNk = np.matmul(np.linalg.inv(AMNk), cf.b)
+            xN = np.zeros(cf.n)
+            for i in range(len(Nk)):
+                xN[Nk[i]] = xNk[i]
+            return xN
+    print("error, initial vector not found!")
+    return np.zeros(cf.n)
+
+
+def simplex_step(cf: NpCanonicalForm, xkN: np.array) -> (np.array, bool):
+    """
+    Совершает один шаг алгоритма симплекс-метода. Обозначения и процедура взяты из пособия
+    Петухов и др., стр. 88
+    :param cf: параметры задачи, поставленной в канонической форме
+    :param xkN: начальное приближение - некий опорный вектор к множеству, заданному `cf`
+    :return:
+        1. следующее приближение - тоже опорный вектор, причём с ним значение целевой функции не возрастает
+        2. булеву переменную, равную `true`, если итерирование нужно прекратить и `false` иначе
+    """
     AMN, cN = cf.A, cf.c
     _, _, Nk0, Nk_plus = split_xkN(xkN)
     binomGrid = binomial_grid(len(Nk0), cf.m - len(Nk_plus))  # вспомог. структура для построения комбинаций столбцов, присоединяемых к A[M,Nk+]
@@ -57,16 +73,18 @@ def simplex_step(cf: NpCanonicalForm, xkN: np.array) -> np.array:
         ykM = np.matmul(BNkM.T, cNk)
         dkN = cN - np.matmul(AMN.T, ykM)
         dkLk = np.array([dkN[int(i)] for i in Lk])
-        if np.min(dkLk) >= 0:  # xkN is a solution
+        if np.min(dkLk) >= 0:  # xkN уже является оптимальным вектором
             print("solution found!")
-            return xkN
-        jk = list(filter(lambda j: dkLk[j] < 0, range(len(Lk))))[0]  # index of first negative component
+            return xkN, True
+        jk = list(filter(lambda j: dkLk[j] < 0, range(len(Lk))))[0]  # индекс первой негативной компоненты в dkLk
         xkNk0, xkNk_plus, Nk0, Nk_plus = split_xkN(xkN)
         ukNk = np.matmul(BNkM, AMN[:,jk])
-        xkNk = np.array([xkN[i] for i in Nk])
+        if np.max(ukNk) <= 0:  # целевая функция не ограничена снизу
+            print("solution does not exist")
+            return np.array([np.inf for _ in range(cf.n)]), True
         if len(Nk_plus) == len(Nk) or max([ukNk[i] for i in filter(lambda j: Nk[j] not in Nk_plus, range(len(Nk)))]) < 0:
             ukN = [ukNk[list(Nk).index(i)] if i in Nk else 0 for i in range(cf.n)]
             ukN[jk] = -1
             theta_k = min([xkN[i]/ukN[i] for i in filter(lambda j: ukN[j] > 0, Nk)])
-            return xkN - np.multiply(theta_k, ukN)
-    return xkN
+            return xkN - np.multiply(theta_k, ukN), False
+    return xkN, False

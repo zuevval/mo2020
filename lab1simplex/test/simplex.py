@@ -92,7 +92,9 @@ def test_cost_function_doesnt_increase():
     for svecs_idx in range(3):
         ncf, _, xkN, n_tests = prepare_common_data(svecs_idx)
         for _ in range(n_tests):
-            xk_minus1_N, xkN = xkN, simplex.simplex_step(ncf, xkN)
+            xk_minus1_N, (xkN, stopIteration) = xkN, simplex.simplex_step(ncf, xkN)
+            if stopIteration:
+                break
             assert np.dot(xk_minus1_N, ncf.c) >= np.dot(xkN, ncf.c)
 
 
@@ -104,7 +106,9 @@ def test_if_vector_in_s():
         ncf, _, xkN, n_tests = prepare_common_data(svecs_idx)
         abs_error = 1e-3
         for _ in range(n_tests):
-            xkN = simplex.simplex_step(ncf, xkN)
+            xkN, stopIteration = simplex.simplex_step(ncf, xkN)
+            if stopIteration:
+                break
             assert np.sum(np.abs(np.matmul(ncf.A, xkN) - ncf.b)) < abs_error
             assert min(xkN) >= 0  # assert there are no negative components in xkN
 
@@ -117,7 +121,9 @@ def test_if_vector_support():
         ncf, svecs, xkN, n_tests = prepare_common_data(svecs_idx)
         abs_error = 1e-3
         for _ in range(n_tests):
-            xkN = simplex.simplex_step(ncf, xkN)
+            xkN, stopIteration = simplex.simplex_step(ncf, xkN)
+            if stopIteration:
+                break
             dists = np.array([np.sum(np.square(np.array(sv) - xkN)) for sv in svecs])
             assert np.min(dists) < abs_error  # assert that exists a support vector close to xkN
 

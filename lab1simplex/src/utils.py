@@ -45,6 +45,27 @@ def binomial_grid(n: int, k: int) -> np.ndarray:
     return np.array([np.array(row) for row in res])
 
 
+def subset_by_index(set:np.array, binom_table:np.ndarray, binom_index:int) -> np.array:
+    """
+    Возвращает подмножество заданного массива длины `n` по номеру от 0 до C[n,k],
+    где C[n,k] - число, стоящее в правом нижнем углу `binom_table`, k < n.
+    Каждому номеру `binom_index` алгоритм ставит в соответствие подмножество, для его вычисления используется таблица.
+    :param set: исходный массив элементов
+    :param binom_table: биномиальная таблица, созданная функцией `binomial_grid`
+    :param binom_index: номер набора
+    :return: подмножество (элементы в том же порядке, что и в `set`)
+    """
+    res, row, col = [], len(binom_table) - 1, len(binom_table[-1]) - 1
+    while col > 0:
+        if binom_index < binom_table[row, col - 1]:
+            res.append(set[row])
+            col -= 1
+        else:
+            binom_index -= binom_table[row, col - 1]
+            row -= 1
+    return np.array(res).astype(int)
+
+
 if __name__ == "__main__":
     inputData = CanonicalForm([[1, 2, 3], [4, 5, 6]], [7, 8], [9, 10, 11])
     npData = NpCanonicalForm(inputData)
