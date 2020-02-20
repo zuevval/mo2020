@@ -1,5 +1,6 @@
 import canon
 import dual
+from src import simplex, bruteforce
 
 if __name__ == "__main__":
     #original system
@@ -12,6 +13,15 @@ if __name__ == "__main__":
 
     #canonical form
     CanonSys = canon.Convert(A,b,c,func,MatrixSigns, VariablesSigns)
+
+    NpCanonForm = simplex.NpCanonicalForm(CanonSys)
+    x = simplex.starting_vector(NpCanonForm)
+    stopIteration = False
+    while not stopIteration:
+        x, stopIteration = simplex.simplex_step(NpCanonForm, x)
+        print(simplex.np.dot(x, NpCanonForm.c))
+
+    print(bruteforce(NpCanonForm))
 
     #dual system
     dual.ConvertToMax(c, func) #always solving ->max

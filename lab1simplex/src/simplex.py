@@ -64,7 +64,7 @@ def simplex_step(cf: NpCanonicalForm, xkN: np.array) -> (np.array, bool):
     AMN, cN = cf.A, cf.c
     _, _, Nk0, Nk_plus = split_xkN(xkN) # Nk0 - индексы нулевых компонент xk, Nk+ - положительных
     binomGrid = binomial_grid(len(Nk0), cf.m - len(Nk_plus))  # вспомог. структура для построения комбинаций столбцов, присоединяемых к A[M,Nk+]
-    for binom_idx in range(binomGrid[-1, -1]-1, -1, -1):  # итерируемся по комбинациям векторов, присоединяемых к A[M,Nk+]
+    for binom_idx in range(binomGrid[-1, -1]):  # итерируемся по комбинациям векторов, присоединяемых к A[M,Nk+]
         AMNk, Nk, Lk = new_AMNk(AMN, xkN, binomGrid, binom_idx)  # дополняем Nk+ до Nk так, что A[M, Nk] квадратная
         if np.linalg.det(AMNk) == 0:  # если определитель построенной квадратной матрицы 0, пропускаем комбинацию
             continue

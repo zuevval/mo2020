@@ -17,9 +17,14 @@ def find_all_svs(cf: NpCanonicalForm):
 
 
 def bruteforce(cf: NpCanonicalForm) -> np.array:
+    """
+    Алгоритм перебора решения задачи линейного программирования
+    :param cf: параметры задачи в канонической форме
+    :return: опорный вектор, минимизирующий целевую функцию c^T*x
+    """
     svs = list(find_all_svs(cf))
-    if not svs:
-        return
+    if not svs:  # опорные векторы не найдены, решения нет
+        return np.zeros(cf.n)
     sv_min = svs[0]
     for sv in svs[1:]:
         if(np.dot(sv, cf.c) < np.dot(sv_min, cf.c)):
