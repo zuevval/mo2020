@@ -83,6 +83,11 @@ def test_calc_BNkM():
     for Ai in [A1, A2, A3]:
         assert abs(np.max(np.matmul(Ai, simplex.calc_BNkM(Ai)) - E)) < abs_err
 
+
+def test_starting_vector():
+    cf = prepare_common_data(0)[0]
+    print("test not implemented")
+
 # --------- Integration Tests ------------
 
 def test_cost_function_doesnt_increase():
@@ -92,7 +97,7 @@ def test_cost_function_doesnt_increase():
     for svecs_idx in range(3):
         ncf, _, xkN, n_tests = prepare_common_data(svecs_idx)
         for _ in range(n_tests):
-            xk_minus1_N, (xkN, stopIteration) = xkN, simplex.simplex_step(ncf, xkN)
+            xk_minus1_N, (xkN, _, stopIteration) = xkN, simplex.simplex_step(ncf, xkN)
             if stopIteration:
                 break
             assert np.dot(xk_minus1_N, ncf.c) >= np.dot(xkN, ncf.c)
@@ -106,7 +111,7 @@ def test_if_vector_in_s():
         ncf, _, xkN, n_tests = prepare_common_data(svecs_idx)
         abs_error = 1e-3
         for _ in range(n_tests):
-            xkN, stopIteration = simplex.simplex_step(ncf, xkN)
+            xkN, _, stopIteration = simplex.simplex_step(ncf, xkN)
             if stopIteration:
                 break
             assert np.sum(np.abs(np.matmul(ncf.A, xkN) - ncf.b)) < abs_error
@@ -121,22 +126,33 @@ def test_if_vector_support():
         ncf, svecs, xkN, n_tests = prepare_common_data(svecs_idx)
         abs_error = 1e-3
         for _ in range(n_tests):
-            xkN, stopIteration = simplex.simplex_step(ncf, xkN)
+            xkN, _, stopIteration = simplex.simplex_step(ncf, xkN)
             if stopIteration:
                 break
             dists = np.array([np.sum(np.square(np.array(sv) - xkN)) for sv in svecs])
             assert np.min(dists) < abs_error  # assert that exists a support vector close to xkN
 
 
+def test_simplex_method():
+    abs_error = 1e-3
+    for svecs_idx in range(3):
+        ncf, svecs, xkN, _ = prepare_common_data(svecs_idx)
+        res = simplex.simplex_method(ncf, xkN)
+        assert res.is_solution
+        dists = np.array([np.sum(np.square(np.array(sv) - res.x)) for sv in svecs])
+        assert np.min(dists) < abs_error  # assert that exists a support vector close to xkN
+
 def run_all_simplex_tests():
     # unit tests
     test_split_xkN()
     test_new_AMNk_simple()
     test_calc_BNkM()
+    test_starting_vector()
     # integration tests
     test_cost_function_doesnt_increase()
     test_if_vector_in_s()
     test_if_vector_support()
+    test_simplex_method()
 
 
 if __name__ == "__main__":

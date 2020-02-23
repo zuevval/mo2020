@@ -1,5 +1,7 @@
+from dataclasses import dataclass
+
 import numpy as np
-from src.utils import NpCanonicalForm, binomial_grid, subset_by_index
+from src.utils import NpCanonicalForm, CanonicalForm, binomial_grid, subset_by_index
 
 
 def split_xkN(xkN:np.array) -> (np.array, np.array, np.array, np.array):
@@ -51,7 +53,7 @@ def starting_vector(cf:NpCanonicalForm) -> np.array:
     return np.zeros(cf.n)
 
 
-def simplex_step(cf: NpCanonicalForm, xkN: np.array) -> (np.array, bool):
+def simplex_step(cf: NpCanonicalForm, xkN: np.array) -> (np.array, np.array, bool):
     """
     Совершает один шаг алгоритма симплекс-метода. Обозначения и процедура взяты из пособия
     Петухов и др., стр. 88
@@ -59,12 +61,15 @@ def simplex_step(cf: NpCanonicalForm, xkN: np.array) -> (np.array, bool):
     :param xkN: начальное приближение - некий опорный вектор к множеству, заданному `cf`
     :return:
         1. следующее приближение - тоже опорный вектор, причём с ним значение целевой функции не возрастает
-        2. булеву переменную, равную `true`, если итерирование нужно прекратить и `false` иначе
+        2. Nk - список индексов базисных векторов опорного вектора в матрице A[M,N]
+        3. булеву переменную, равную `true`, если итерирование нужно прекратить и `false` иначе
     """
     AMN, cN = cf.A, cf.c
     _, _, Nk0, Nk_plus = split_xkN(xkN) # Nk0 - индексы нулевых компонент xk, Nk+ - положительных
     binomGrid = binomial_grid(len(Nk0), cf.m - len(Nk_plus))  # вспомог. структура для построения комбинаций столбцов, присоединяемых к A[M,Nk+]
-    for binom_idx in range(binomGrid[-1, -1]):  # итерируемся по комбинациям векторов, присоединяемых к A[M,Nk+]
+    for binom_idx in range(binomGrid[-1, -1] - 1, -1, -1):  # итерируемся по комбинациям векторов, присоединяемых к A[M,Nk+]
+    #for binom_idx in range(binomGrid[-1, -1]):  # В таком порядке не проходят тесты (TODO разобраться).
+    # В первом порядке алг-м слишком быстро находит решение нашей задачи
         AMNk, Nk, Lk = new_AMNk(AMN, xkN, binomGrid, binom_idx)  # дополняем Nk+ до Nk так, что A[M, Nk] квадратная
         if np.linalg.det(AMNk) == 0:  # если определитель построенной квадратной матрицы 0, пропускаем комбинацию
             continue
@@ -75,16 +80,63 @@ def simplex_step(cf: NpCanonicalForm, xkN: np.array) -> (np.array, bool):
         dkLk = np.array([dkN[int(i)] for i in Lk])
         if np.min(dkLk) >= 0:  # xkN уже является оптимальным вектором
             print("solution found!")
-            return xkN, True
+            return xkN, Nk, True
         jk = list(filter(lambda j: dkLk[j] < 0, range(len(Lk))))[0]  # индекс первой негативной компоненты в dkLk
         xkNk0, xkNk_plus, Nk0, Nk_plus = split_xkN(xkN)
         ukNk = np.matmul(BNkM, AMN[:,jk])
         if np.max(ukNk) <= 0:  # целевая функция не ограничена снизу
             print("solution does not exist")
-            return np.array([np.inf for _ in range(cf.n)]), True
+            return np.array([np.inf for _ in range(cf.n)]), Nk, True
         if len(Nk_plus) == len(Nk) or max([ukNk[i] for i in filter(lambda j: Nk[j] not in Nk_plus, range(len(Nk)))]) < 0:
             ukN = [ukNk[list(Nk).index(i)] if i in Nk else 0 for i in range(cf.n)]
             ukN[jk] = -1
             theta_k = min([xkN[i]/ukN[i] for i in filter(lambda j: ukN[j] > 0, Nk)])
-            return xkN - np.multiply(theta_k, ukN), False
-    return xkN, False
+            return xkN - np.multiply(theta_k, ukN), Nk, False
+    return xkN, np.array([]), True  # что-то пошло не так
+
+
+@dataclass
+class SimplexResult:
+    x: np.array
+    Nk: np.array
+    is_solution: bool
+
+
+def starting_vector_method2(cf: NpCanonicalForm) -> SimplexResult:
+    AMN, bM = cf.A, cf.b
+    EMM = np.eye(cf.m)
+    A_aux = np.concatenate((AMN, EMM), axis=1)
+    c_aux = np.concatenate((np.zeros(cf.n), np.ones(cf.m)))
+    for row in range(cf.m):  # проверяем знаки bM. Если есть отриц., умножаем строку системы на -1
+        if bM[row] < 0:
+            for col in range(len(A_aux[row])):
+                A_aux[row, col] *= -1
+            bM[row] *= -1
+
+    cf_aux = NpCanonicalForm(CanonicalForm(A_aux, bM, c_aux))  # в конструктор передаются np.array вместо List. Не страшно.
+    x_aux_start = np.concatenate((np.zeros(cf.n), bM))
+    aux_res = simplex_method(cf_aux, x_aux_start)
+    x_aux, Nk_aux = aux_res.x, aux_res.Nk
+    yM = x_aux[cf.n:]
+    if not aux_res.is_solution or np.max(yM) > 0:
+        return SimplexResult(np.array([np.inf for _ in range(cf.n)]), np.array([]), False)
+    x0N = x_aux[:cf.n]
+    _, _, _, Nk_plus = split_xkN(x0N)
+    if len(Nk_plus) == cf.m:  # если найденный собственный вектор невырожденный
+        return SimplexResult(x0N, Nk_plus, True)
+    Nk = Nk_aux[:cf.n]
+    print("choosing starting vector: oops")
+    # TODO реализовать следующую ступень алгоритма - замену базиса в случае вырожденного опорного вектора
+    # в реальности алгоритм пока ни разу не дошёл до этого места
+
+
+def simplex_method(cf: NpCanonicalForm, x_start: np.array, max_iter: int = 20) -> SimplexResult:
+    xkN, Nk = x_start, np.array([])
+    for _ in range(max_iter):
+        xkN, Nk, stopIteration = simplex_step(cf, xkN)
+        if stopIteration:
+            break
+    if len(Nk) == 0 or np.max(xkN) == np.inf:
+        return SimplexResult(xkN, Nk, False)
+    else:
+        return SimplexResult(xkN, Nk, True)

@@ -16,9 +16,11 @@ if __name__ == "__main__":
 
     NpCanonForm = simplex.NpCanonicalForm(CanonSys)
     x = simplex.starting_vector(NpCanonForm)
+    # x = simplex.starting_vector_method2(NpCanonForm).x  # TODO разобраться
+    print(x)
     stopIteration = False
     while not stopIteration:
-        x, stopIteration = simplex.simplex_step(NpCanonForm, x)
+        x, Nk, stopIteration = simplex.simplex_step(NpCanonForm, x)
         print(simplex.np.dot(x, NpCanonForm.c))
 
     print(bruteforce(NpCanonForm))
