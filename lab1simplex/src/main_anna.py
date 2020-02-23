@@ -1,6 +1,7 @@
 import canon
 import dual
 from src import simplex, bruteforce
+import numpy as np
 
 if __name__ == "__main__":
     #original system
@@ -35,6 +36,8 @@ if __name__ == "__main__":
     DualCanonSys = canon.Convert(TransA,Newb,Newc,func,NewMatrixSigns,NewVariableSigns)
 
     NpCanonForm = simplex.NpCanonicalForm(DualCanonSys)
+    print("A: "+ str(NpCanonForm.A))
+    print("rank(A): " + str(np.rank(NpCanonForm.A)))
     x = simplex.starting_vector(NpCanonForm)
     print(simplex.simplex_method(NpCanonForm, x).x)
 
