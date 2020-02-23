@@ -1,4 +1,4 @@
-import canonical_form as cf
+from src import utils as cf
 
 def ConvertToEquals(MatrixSigns):
     w = []

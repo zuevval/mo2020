@@ -32,9 +32,28 @@ def new_AMNk(AMN: np.array, xkN:np.array, binom_table:np.ndarray, binom_idx:int)
     return AMNk, Nk.astype(int), Lk.astype(int)
 
 
-def calc_BNkM(AMNk):
-    # TODO implement simplier method from book
-    return np.linalg.inv(AMNk)
+class nextBParams:
+    def __init__(self, BNkM: np.ndarray, ukNk: np.array, ik: int):
+        self.m = len(ukNk)
+        dim_correct = len(BNkM) == self.m
+        for row in BNkM:
+            dim_correct &= len(row) == self.m
+        dim_correct &= ik < self.m
+        if not dim_correct:
+            raise Exception("dimensions mismatch")
+        self.BNkM, self.ukNk, self.ik = BNkM, ukNk, ik
+
+
+def calc_BNkM(AMNk, par: nextBParams=None):
+    if not par:  # если не заданы подсказки для вычисления следующей обратной матрицы
+        return np.linalg.inv(AMNk)
+    FNk1Nk = np.eye(par.m)
+    for row in range(par.m):
+        if row == par.ik:
+            FNk1Nk[par.ik, row] = 1/par.ukNk[par.ik]
+        else:
+            FNk1Nk[par.ik, row] = par.ukNk[row]/par.ukNk[par.ik]
+    return np.matmul(FNk1Nk, par.BNkM)
 
 
 def starting_vector(cf:NpCanonicalForm) -> np.array:
@@ -73,7 +92,13 @@ def simplex_step(cf: NpCanonicalForm, xkN: np.array) -> (np.array, np.array, boo
         AMNk, Nk, Lk = new_AMNk(AMN, xkN, binomGrid, binom_idx)  # дополняем Nk+ до Nk так, что A[M, Nk] квадратная
         if np.linalg.det(AMNk) == 0:  # если определитель построенной квадратной матрицы 0, пропускаем комбинацию
             continue
-        BNkM = calc_BNkM(AMNk)  # вычисление матрицы, обратной к A[M, Nk]
+        try:
+            diff_indices = list(filter(lambda idx: idx not in Nk, Nk_minus_1))
+            assert len(diff_indices) == 1
+            ik = np.where(Nk_minus_1 == diff_indices[0])
+            BNkM = calc_BNkM(AMNk, nextBParams(BNkM, ukNk, ik[0]))
+        except NameError:  # TODO выяснить, почему в тестах всегда выполняется эта ветка (в реальн. задаче не всегда)
+            BNkM = calc_BNkM(AMNk)  # вычисление матрицы, обратной к A[M, Nk]
         cNk = np.array([cN[i] for i in Nk])
         ykM = np.matmul(BNkM.T, cNk)
         dkN = cN - np.matmul(AMN.T, ykM)
@@ -92,6 +117,7 @@ def simplex_step(cf: NpCanonicalForm, xkN: np.array) -> (np.array, np.array, boo
             ukN[jk] = -1
             theta_k = min([xkN[i]/ukN[i] for i in filter(lambda j: ukN[j] > 0, Nk)])
             return xkN - np.multiply(theta_k, ukN), Nk, False
+        Nk_minus_1 = Nk
     return xkN, np.array([]), True  # что-то пошло не так
 
 

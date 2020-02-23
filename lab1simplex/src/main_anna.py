@@ -17,11 +17,7 @@ if __name__ == "__main__":
     NpCanonForm = simplex.NpCanonicalForm(CanonSys)
     x = simplex.starting_vector(NpCanonForm)
     # x = simplex.starting_vector_method2(NpCanonForm).x  # TODO разобраться
-    print(x)
-    stopIteration = False
-    while not stopIteration:
-        x, Nk, stopIteration = simplex.simplex_step(NpCanonForm, x)
-        print(simplex.np.dot(x, NpCanonForm.c))
+    print(simplex.simplex_method(NpCanonForm, x).x)
 
     print(bruteforce(NpCanonForm))
 
@@ -37,3 +33,10 @@ if __name__ == "__main__":
 
     #canon dual system
     DualCanonSys = canon.Convert(TransA,Newb,Newc,func,NewMatrixSigns,NewVariableSigns)
+
+    NpCanonForm = simplex.NpCanonicalForm(DualCanonSys)
+    x = simplex.starting_vector(NpCanonForm)
+    print(simplex.simplex_method(NpCanonForm, x).x)
+
+    print(bruteforce(NpCanonForm))
+
