@@ -18,8 +18,9 @@ if __name__ == "__main__":
     NpCanonForm = simplex.NpCanonicalForm(CanonSys)
     x = simplex.starting_vector(NpCanonForm)
     # x = simplex.starting_vector_method2(NpCanonForm).x  # TODO разобраться
+    print("--- simplex algorithm: primal problem ---")
     print(simplex.simplex_method(NpCanonForm, x).x)
-
+    print("------ brute force: primal problem ------")
     print(bruteforce(NpCanonForm))
 
     #dual system
@@ -36,10 +37,9 @@ if __name__ == "__main__":
     DualCanonSys = canon.Convert(TransA,Newb,Newc,func,NewMatrixSigns,NewVariableSigns)
 
     NpCanonForm = simplex.NpCanonicalForm(DualCanonSys)
-    print("A: "+ str(NpCanonForm.A))
-    print("rank(A): " + str(np.rank(NpCanonForm.A)))
     x = simplex.starting_vector(NpCanonForm)
+    print("--- simplex algorithm: dual problem ---")
     print(simplex.simplex_method(NpCanonForm, x).x)
-
+    print("------ brute force: dual problem ------")
     print(bruteforce(NpCanonForm))
 

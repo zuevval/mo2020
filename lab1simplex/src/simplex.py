@@ -44,16 +44,15 @@ class nextBParams:
         self.BNkM, self.ukNk, self.ik = BNkM, ukNk, ik
 
 
-def calc_BNkM(AMNk, par: nextBParams=None):
-    if not par:  # если не заданы подсказки для вычисления следующей обратной матрицы
-        return np.linalg.inv(AMNk)
-    FNk1Nk = np.eye(par.m)
-    for row in range(par.m):
-        if row == par.ik:
-            FNk1Nk[par.ik, row] = 1/par.ukNk[par.ik]
-        else:
-            FNk1Nk[par.ik, row] = par.ukNk[row]/par.ukNk[par.ik]
-    return np.matmul(FNk1Nk, par.BNkM)
+def calc_BNkM(AMNk: np.ndarray) -> np.ndarray:
+    '''
+    От вычисления с использованием предыдущей информации отказался, т. к.
+    для этого требуется, чтобы наборы индексов присоединяемых векторов отличались одним индексом,
+    а `subset_by_index(...)` не обладает таким свойством
+    :param AMNk: квадратная матрица
+    :return: обратная матрица
+    '''
+    return np.linalg.inv(AMNk)
 
 
 def starting_vector(cf:NpCanonicalForm) -> np.array:
@@ -86,19 +85,13 @@ def simplex_step(cf: NpCanonicalForm, xkN: np.array) -> (np.array, np.array, boo
     AMN, cN = cf.A, cf.c
     _, _, Nk0, Nk_plus = split_xkN(xkN) # Nk0 - индексы нулевых компонент xk, Nk+ - положительных
     binomGrid = binomial_grid(len(Nk0), cf.m - len(Nk_plus))  # вспомог. структура для построения комбинаций столбцов, присоединяемых к A[M,Nk+]
-    for binom_idx in range(binomGrid[-1, -1] - 1, -1, -1):  # итерируемся по комбинациям векторов, присоединяемых к A[M,Nk+]
-    #for binom_idx in range(binomGrid[-1, -1]):  # В таком порядке не проходят тесты (TODO разобраться).
+    #for binom_idx in range(binomGrid[-1, -1] - 1, -1, -1):  # итерируемся по комбинациям векторов, присоединяемых к A[M,Nk+]
+    for binom_idx in range(binomGrid[-1, -1]):
     # В первом порядке алг-м слишком быстро находит решение нашей задачи
         AMNk, Nk, Lk = new_AMNk(AMN, xkN, binomGrid, binom_idx)  # дополняем Nk+ до Nk так, что A[M, Nk] квадратная
         if np.linalg.det(AMNk) == 0:  # если определитель построенной квадратной матрицы 0, пропускаем комбинацию
             continue
-        try:
-            diff_indices = list(filter(lambda idx: idx not in Nk, Nk_minus_1))
-            assert len(diff_indices) == 1
-            ik = np.where(Nk_minus_1 == diff_indices[0])
-            BNkM = calc_BNkM(AMNk, nextBParams(BNkM, ukNk, ik[0]))
-        except NameError:  # TODO выяснить, почему в тестах всегда выполняется эта ветка (в реальн. задаче не всегда)
-            BNkM = calc_BNkM(AMNk)  # вычисление матрицы, обратной к A[M, Nk]
+        BNkM = calc_BNkM(AMNk)  # вычисление матрицы, обратной к A[M, Nk]
         cNk = np.array([cN[i] for i in Nk])
         ykM = np.matmul(BNkM.T, cNk)
         dkN = cN - np.matmul(AMN.T, ykM)
@@ -106,9 +99,9 @@ def simplex_step(cf: NpCanonicalForm, xkN: np.array) -> (np.array, np.array, boo
         if np.min(dkLk) >= 0:  # xkN уже является оптимальным вектором
             print("solution found!")
             return xkN, Nk, True
-        jk = list(filter(lambda j: dkLk[j] < 0, range(len(Lk))))[0]  # индекс первой негативной компоненты в dkLk
+        jk = Lk[list(filter(lambda j: dkLk[j] < 0, range(len(Lk))))[0]]  # индекс первой негативной компоненты в dkLk
         xkNk0, xkNk_plus, Nk0, Nk_plus = split_xkN(xkN)
-        ukNk = np.matmul(BNkM, AMN[:,jk])
+        ukNk = np.matmul(BNkM, AMN[:, jk])
         if np.max(ukNk) <= 0:  # целевая функция не ограничена снизу
             print("solution does not exist")
             return np.array([np.inf for _ in range(cf.n)]), Nk, True
@@ -117,7 +110,6 @@ def simplex_step(cf: NpCanonicalForm, xkN: np.array) -> (np.array, np.array, boo
             ukN[jk] = -1
             theta_k = min([xkN[i]/ukN[i] for i in filter(lambda j: ukN[j] > 0, Nk)])
             return xkN - np.multiply(theta_k, ukN), Nk, False
-        Nk_minus_1 = Nk
     return xkN, np.array([]), True  # что-то пошло не так
 
 

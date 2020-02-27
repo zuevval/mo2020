@@ -58,12 +58,14 @@ def subset_by_index(set:np.array, binom_table:np.ndarray, binom_index:int) -> np
     res, row, col = [], len(binom_table) - 1, len(binom_table[-1]) - 1
     while col > 0:
         if binom_index < binom_table[row, col - 1]:
-            res.append(set[row])
+            res.append(set[row + col - 1])
             col -= 1
         else:
             binom_index -= binom_table[row, col - 1]
             row -= 1
-    return np.array(res).astype(int)
+    res = np.array(res)
+    res.sort()
+    return res.astype(int)
 
 
 if __name__ == "__main__":
