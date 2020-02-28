@@ -1,16 +1,12 @@
 import canon
+import enter
 import dual
 from src import simplex, bruteforce
 import numpy as np
 
 if __name__ == "__main__":
     #original system
-    A = [[1,-2,2,0], [1,2,1,1], [2,1,-4,1], [-1,4,0,-2]] 
-    b = [6,24,30,-6]
-    c = [8,3,4,2] #coefficiens for goal function
-    func = "max" #type of a problem
-    MatrixSigns = ["<=", "=", "=", ">="] #matrix restrictions signs
-    VariablesSigns = [">=", "", "", ""] # "" if no restictions on x
+    A,b,c,func,MatrixSigns,VariablesSigns = enter.ReadFile('problem.txt')
 
     #canonical form
     CanonSys = canon.Convert(A,b,c,func,MatrixSigns, VariablesSigns)
