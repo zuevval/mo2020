@@ -1,10 +1,10 @@
 def CheckSigns(A,b,MatrixSigns):
     for i in range(len(MatrixSigns)):
-        if MatrixSigns[i] == ">=":
+        if MatrixSigns[i] == "<=":
             for j in range(len(A[i])):
                 A[i][j]=-A[i][j]
             b[i]= -b[i]
-            MatrixSigns[i] = "<="
+            MatrixSigns[i] = ">="
 
 def TransposeMatrix(A):
     B = []
@@ -44,9 +44,9 @@ def NewFunction(func):
         return "max"
     return "min"
 
-def ConvertToMax(c, func):
-    if func == "min":
+def ConvertToMin(c, func):
+    if func == "max":
         for i in range(len(c)):
             c[i] = -c[i]
-        func = "max"
+    return "min"
 

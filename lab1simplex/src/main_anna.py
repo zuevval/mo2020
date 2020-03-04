@@ -20,8 +20,8 @@ if __name__ == "__main__":
     print(bruteforce(NpCanonForm))
 
     #dual system
-    dual.ConvertToMax(c, func) #always solving ->max
-    dual.CheckSigns(A, b, MatrixSigns) #only <= sign allowed in finding max problem
+    dual.ConvertToMin(c, func) #always solving -> min
+    func = dual.CheckSigns(A, b, MatrixSigns) #only >= sign allowed in finding max problem
     TransA = dual.TransposeMatrix(A) #transposing matrix A
     Newb = dual.NewVector(c) #finding dual vector b
     Newc = dual.NewCoeff(b) #finding coefficients of dual goal function
