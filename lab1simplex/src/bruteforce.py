@@ -1,4 +1,4 @@
-from src.utils import NpCanonicalForm, binomial_grid, subset_by_index
+from utils import NpCanonicalForm, binomial_grid, subset_by_index
 import numpy as np
 
 

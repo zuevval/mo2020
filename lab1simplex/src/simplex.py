@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 
 import numpy as np
-from src.utils import NpCanonicalForm, CanonicalForm, binomial_grid, subset_by_index
+from utils import NpCanonicalForm, CanonicalForm, binomial_grid, subset_by_index
 
 
 def split_xkN(xkN:np.array) -> (np.array, np.array, np.array, np.array):

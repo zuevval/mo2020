@@ -1,4 +1,4 @@
-from src import utils as cf
+import utils as cf
 
 def ConvertToEquals(MatrixSigns):
     w = []

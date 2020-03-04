@@ -1,7 +1,4 @@
-import canon
-import enter
-import dual
-from src import simplex, bruteforce
+import canon, enter, dual, simplex, bruteforce
 import numpy as np
 
 if __name__ == "__main__":
@@ -17,7 +14,7 @@ if __name__ == "__main__":
     print("--- simplex algorithm: primal problem ---")
     print(simplex.simplex_method(NpCanonForm, x).x)
     print("------ brute force: primal problem ------")
-    print(bruteforce(NpCanonForm))
+    print(bruteforce.bruteforce(NpCanonForm))
 
     #dual system
     dual.ConvertToMin(c, func) #always solving -> min
@@ -37,5 +34,5 @@ if __name__ == "__main__":
     print("--- simplex algorithm: dual problem ---")
     print(simplex.simplex_method(NpCanonForm, x).x)
     print("------ brute force: dual problem ------")
-    print(bruteforce(NpCanonForm))
+    print(bruteforce.bruteforce(NpCanonForm))
 
