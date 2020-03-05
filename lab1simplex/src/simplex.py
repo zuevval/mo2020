@@ -97,7 +97,7 @@ def simplex_step(cf: NpCanonicalForm, xkN: np.array) -> (np.array, np.array, boo
         dkN = cN - np.matmul(AMN.T, ykM)
         dkLk = np.array([dkN[int(i)] for i in Lk])
         if np.min(dkLk) >= 0:  # xkN уже является оптимальным вектором
-            print("solution found!")
+            print("solution found at iteration " + str(binom_idx + 1))
             return xkN, Nk, True
         jk = Lk[list(filter(lambda j: dkLk[j] < 0, range(len(Lk))))[0]]  # индекс первой негативной компоненты в dkLk
         xkNk0, xkNk_plus, Nk0, Nk_plus = split_xkN(xkN)
