@@ -1,5 +1,5 @@
-import utils as cf
-
+#import utils as cf
+import enter
 def ConvertToEquals(MatrixSigns):
     w = []
     for i in range(len(MatrixSigns)):
@@ -116,3 +116,7 @@ def Convert(A,b,c,func,MatrixSigns,VariablesSigns):
     #restriction >=0 on variables that can be of any sign
     PrintSystem(A,b,c,x,vectors,w,func,MatrixSigns,VariablesSigns) #print converted to canon system
     return CreateSystem(A,b,c,vectors,w)
+
+
+A,b,c,func,MatrixSigns,VariablesSigns = enter.ReadFile('problem.txt')
+Convert(A,b,c,func,MatrixSigns, VariablesSigns)
