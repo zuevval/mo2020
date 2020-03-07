@@ -1,4 +1,3 @@
-from dataclasses import dataclass
 
 import numpy as np
 from utils import NpCanonicalForm, CanonicalForm, binomial_grid, subset_by_index
@@ -113,11 +112,9 @@ def simplex_step(cf: NpCanonicalForm, xkN: np.array) -> (np.array, np.array, boo
     return xkN, np.array([]), True  # что-то пошло не так
 
 
-@dataclass
 class SimplexResult:
-    x: np.array
-    Nk: np.array
-    is_solution: bool
+    def __init__(self, x:np.array, Nk:np.array, is_solution:bool):
+        self.x, self.Nk, self.is_solution = x, Nk, is_solution
 
 
 def starting_vector_method2(cf: NpCanonicalForm) -> SimplexResult:
