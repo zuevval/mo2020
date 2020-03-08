@@ -1,5 +1,10 @@
 import utils as cf
-import enter
+
+def ConvertToMin(c, func):
+    if func == "max":
+        for i in range(len(c)):
+            c[i] = -c[i]
+
 def ConvertToEquals(MatrixSigns):
     w = []
     for i in range(len(MatrixSigns)):
@@ -73,7 +78,6 @@ def PrintSystem(A,b,c,x,vectors,w,func, MatrixSigns,VariablesSigns):
 
 def CreateSystem(A,b,c,vectors,w):
     B = []
-    k = 0
 
     for _ in range(len(A)):
         B.append([])
@@ -108,15 +112,12 @@ def CreateSystem(A,b,c,vectors,w):
             
 def Convert(A,b,c,func,MatrixSigns,VariablesSigns):
     x = []
-    for i in range(len(c)):
+    for _ in range(len(c)):
         x.append(1)
     PrintSystem(A,b,c,x,[],[],func,MatrixSigns,VariablesSigns) #print given system
     w = ConvertToEquals(MatrixSigns) #adding vector w to get rid off <= and >= and make them =
     vectors = CheckVariablesSigns(VariablesSigns, x) #adding vectors u and v to set
     #restriction >=0 on variables that can be of any sign
+    ConvertToMin(c, func)
     PrintSystem(A,b,c,x,vectors,w,func,MatrixSigns,VariablesSigns) #print converted to canon system
     return CreateSystem(A,b,c,vectors,w)
-
-
-A,b,c,func,MatrixSigns,VariablesSigns = enter.ReadFile('problem.txt')
-Convert(A,b,c,func,MatrixSigns, VariablesSigns)

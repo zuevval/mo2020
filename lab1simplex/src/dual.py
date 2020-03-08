@@ -33,7 +33,7 @@ def NewMSigns(VariablesSigns):
 def NewVSigns(MatrixSigns):
     signs = []
     for i in range(len(MatrixSigns)):
-        if MatrixSigns[i] == "<=":
+        if MatrixSigns[i] == ">=":
             signs.append(">=")
         elif MatrixSigns[i] == "=":
             signs.append("")
@@ -44,9 +44,5 @@ def NewFunction(func):
         return "max"
     return "min"
 
-def ConvertToMin(c, func):
-    if func == "max":
-        for i in range(len(c)):
-            c[i] = -c[i]
-    return "min"
+
 

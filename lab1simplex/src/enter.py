@@ -27,13 +27,14 @@ def ReadFile(file_name):
             break
         VariablesSigns = [x for x in line.split()]
 
-    for _ in range(len(c)):
+    size = len(VariablesSigns)
+    for _ in range(len(c) - size):
                 VariablesSigns.append("")
 
     for line in f:
         if line == "\n":
             break
-        func = line
+        func = line.rstrip()
 
     print("A = ", A)
     print("MatrixSigns = ", MatrixSigns)

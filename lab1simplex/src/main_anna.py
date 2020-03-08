@@ -17,8 +17,7 @@ if __name__ == "__main__":
     print(bruteforce.bruteforce(NpCanonForm))
 
     #dual system
-    dual.ConvertToMin(c, func) #always solving -> min
-    func = dual.CheckSigns(A, b, MatrixSigns) #only >= sign allowed in finding max problem
+    dual.CheckSigns(A, b, MatrixSigns) #only >= sign allowed in finding min problem
     TransA = dual.TransposeMatrix(A) #transposing matrix A
     Newb = dual.NewVector(c) #finding dual vector b
     Newc = dual.NewCoeff(b) #finding coefficients of dual goal function
@@ -27,7 +26,8 @@ if __name__ == "__main__":
     Newfunc = dual.NewFunction(func) #finding dual problem type
 
     #canon dual system
-    DualCanonSys = canon.Convert(TransA,Newb,Newc,func,NewMatrixSigns,NewVariableSigns)
+    DualCanonSys = canon.Convert(TransA,Newb,Newc,Newfunc,NewMatrixSigns,NewVariableSigns)
+    
 
     NpCanonForm = simplex.NpCanonicalForm(DualCanonSys)
     x = simplex.starting_vector(NpCanonForm)
