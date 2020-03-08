@@ -39,6 +39,22 @@ def check_with_automatically_converted_canonical():
     f_b = np.matmul(x_b, cf.c)
     print("cost function at vector found by brute force: " + str(f_b))
 
+    c = [8, 8, -8, -4, 4, -2, 2, 0, 0]
+    A = [[1, -2, 2, 2, -2, 0, 0, 1, 0],
+         [1, 2, -2, 1, -2, 1, -1, 0, 0],
+         [2, 1, -1, -4, 4, 1, -1, 0, 0],
+         [-1, 4, -4, 0, 0, -2, 2, 0, 1]]
+    b = [6, 24, 30, -6]
+    cf = utils.NpCanonicalForm(utils.CanonicalForm(A, b, c))
+    
+    x_online = np.array([0, 0, 7 / 2, 0, 1 / 2, 63 / 2, 0, 0, 71])
+    print("x_online is not in S. Proof: " + str(np.matmul(cf.A, x_online) - cf.b))
+
+    x_b = bruteforce(cf)
+    assert np.max(np.abs(np.matmul(cf.A, x_b) - cf.b)) < 1e-3
+    f_b = np.matmul(x_b, cf.c)
+    print("cost function at vector found by brute force: " + str(f_b))
+
 
 if __name__ == "__main__":
     run_primal_problem()
