@@ -8,8 +8,10 @@ def find_all_svs(cf: NpCanonicalForm):
     for idx in range(binom_table[-1, -1]):
         Nk = subset_by_index(N, binom_table, idx)
         AMNk = np.array([cf.A[:, i] for i in Nk]).T
-        if np.linalg.det(AMNk) != 0:
+        if np.abs(np.linalg.det(AMNk)) > 1e-3:
             xNk = np.matmul(np.linalg.inv(AMNk), cf.b)
+            if np.min(xNk) < 0:
+                continue
             xN = np.zeros(cf.n)
             for i in range(len(Nk)):
                 xN[Nk[i]] = xNk[i]
@@ -27,6 +29,6 @@ def bruteforce(cf: NpCanonicalForm) -> np.array:
         return np.zeros(cf.n)
     sv_min = svs[0]
     for sv in svs[1:]:
-        if(np.dot(sv, cf.c) < np.dot(sv_min, cf.c)):
+        if np.dot(sv, cf.c) < np.dot(sv_min, cf.c):
             sv_min = sv
     return sv_min

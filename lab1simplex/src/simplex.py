@@ -62,6 +62,8 @@ def starting_vector(cf:NpCanonicalForm) -> np.array:
         AMNk = np.array([cf.A[:, i] for i in Nk]).T
         if np.linalg.det(AMNk) != 0:
             xNk = np.matmul(np.linalg.inv(AMNk), cf.b)
+            if np.min(xNk) < 0:
+                continue  # we need only vectors with all positive components
             xN = np.zeros(cf.n)
             for i in range(len(Nk)):
                 xN[Nk[i]] = xNk[i]
@@ -109,6 +111,7 @@ def simplex_step(cf: NpCanonicalForm, xkN: np.array) -> (np.array, np.array, boo
             ukN[jk] = -1
             theta_k = min([xkN[i]/ukN[i] for i in filter(lambda j: ukN[j] > 0, Nk)])
             return xkN - np.multiply(theta_k, ukN), Nk, False
+    print("iterations ended with no result, something went wrong.")
     return xkN, np.array([]), True  # что-то пошло не так
 
 
