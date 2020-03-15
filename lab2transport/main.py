@@ -1,6 +1,8 @@
-import NW
-import Min
 import numpy as np
+import sys
+sys.path.append('.')  # now environment can see package `src`
+from src import NW
+from src import Min
 
 if __name__ == "__main__":
     matrix1 = np.array([[5,3,1],[3,2,4],[4,1,2]], int)
