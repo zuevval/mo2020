@@ -22,23 +22,6 @@ def run_primal_problem():
 
 
 def check_with_automatically_converted_canonical():
-    c = [8, 8, 4, 2, 0, 0, 0, 0]
-    A = [[1, -2,  2, 0, 1, 0, 0,  0],
-         [1,  2,  1, 1, 0, 1, 0,  0],
-         [2,  1, -4, 1, 0, 0, 1,  0],
-         [1, -4,  0, 2, 0, 0, 0, -1]]
-    b = [6, 24, 30, 6]
-    cf = utils.NpCanonicalForm(utils.CanonicalForm(A, b, c))
-    print("--- running test with pre-defined canonical form ---")
-    res = simplex.simplex_method(cf, simplex.starting_vector(cf))
-    print(res.x)
-    f = np.matmul(res.x, cf.c)
-    print("cost function at vector found by simplex: " + str(f))
-    x_b = bruteforce(cf)
-    print(x_b)
-    f_b = np.matmul(x_b, cf.c)
-    print("cost function at vector found by brute force: " + str(f_b))
-
     c = [8, 8, -8, -4, 4, -2, 2, 0, 0]
     A = [[1, -2, 2, 2, -2, 0, 0, 1, 0],
          [1, 2, -2, 1, -1, 1, -1, 0, 0],
@@ -48,9 +31,19 @@ def check_with_automatically_converted_canonical():
     cf = utils.NpCanonicalForm(utils.CanonicalForm(A, b, c))
 
     x_online = np.array([0, 0, 7 / 2, 0, 1 / 2, 63 / 2, 0, 0, 71])
-    print("x_online is not in S. Proof: " + str(np.matmul(cf.A, x_online) - cf.b))
+    print(np.matmul(x_online, cf.c))
+    print(str(np.matmul(cf.A, x_online) - cf.b))
 
+    print("\n--- running test with pre-defined canonical form ---")
+    print("---- running simplex algorithm ----")
+    res = simplex.simplex_method(cf, simplex.starting_vector(cf))
+    print(res.x)
+    f = np.matmul(res.x, cf.c)
+    print("cost function at vector found by simplex: " + str(f))
+
+    print("\n---- running brute force ----")
     x_b = bruteforce(cf)
+    print(x_b)
     assert np.max(np.abs(np.matmul(cf.A, x_b) - cf.b)) < 1e-3
     f_b = np.matmul(x_b, cf.c)
     print("cost function at vector found by brute force: " + str(f_b))
