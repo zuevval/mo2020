@@ -18,10 +18,19 @@ def test_solve_transportation_potentials():
                (None, None, 26,  17)]
     x0 = np.array([np.array(row) for row in x0_list])
 
+    # first, check initial potentials calculation correctness
     u, v = potentials.calc_u_v(c, x0)
     v_expected = np.array([0, 7, 5, 1])
     u_expected = np.array([-14, -10, -20])
     assert (u_expected == u).all() and (v_expected == v).all()
+
+    # then check potential difference correctness
+    alpha = potentials.calc_alpha(x0, u, v)
+    alpha_list = [(None, 21,   19,   15),
+                  (None, None, None, 11),
+                  (20,   27,   None, None)]
+    alpha_expected = np.array([np.array(row) for row in alpha_list])
+    assert (alpha == alpha_expected).all()
 
     potentials.solve_transportation_potentials(a, b, c, x0)
 

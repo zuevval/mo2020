@@ -54,6 +54,26 @@ def calc_u_v(c: np.ndarray, x: np.ndarray) -> (np.array, np.array):
     return u, v
 
 
+def calc_alpha(x: np.ndarray, u: np.array, v: np.array) -> np.ndarray:
+    m, n = len(u), len(v)
+    assert x.shape == (m, n)
+    """
+    10 lines of code below are equivalent to:
+    return np.array([np.array([v[j] - u[i] if x[i, j] is None else None for j in range(m)]) for i in range(n)])
+    """
+    alpha = []
+    for i in range(m):
+        row = []
+        for j in range(n):
+            if x[i, j] is None:
+                row.append(v[j] - u[i])
+            else:
+                row.append(None)
+        alpha.append(row)
+    return np.array(alpha)
+
+
 def solve_transportation_potentials(a: np.array, b: np.array, c: np.ndarray, x0: np.ndarray):
     u, v = calc_u_v(c, x0)
-    t = TransportTable(u, v, c, x0)
+    alpha = calc_alpha(x0, u, v)
+    t = TransportTable(u=u, v=v, c=c, x0=x0, alpha=alpha)
