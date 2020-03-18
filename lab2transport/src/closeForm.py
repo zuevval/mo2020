@@ -1,6 +1,7 @@
 import numpy as np
+from typing import Tuple
 
-def closeForm(matrix:np.ndarray, stock:np.array, need:np.array)-> (np.ndarray, np.array, np.array):
+def closeForm(matrix:np.ndarray, stock:np.array, need:np.array)-> Tuple[np.ndarray, np.array, np.array]:
     """Brings the transportation problem to closed-form by adding fake provider or consumer"""
     overallNeed = np.sum(need)
     overallStock = np.sum(stock)
