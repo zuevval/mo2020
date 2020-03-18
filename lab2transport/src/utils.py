@@ -6,4 +6,4 @@ class TransportTable:
         self.m, self.n = len(u), len(v)
         assert c.shape == x0.shape == (self.m, self.n)
         assert len([xij for xij in x0.flatten() if xij is not None]) == self.m + self.n - 1
-        self.c, self.x = c, x0
+        self.c, self.x, self.u, self.v = c, x0, u, v

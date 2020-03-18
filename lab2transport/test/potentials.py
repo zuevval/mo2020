@@ -17,6 +17,12 @@ def test_solve_transportation_potentials():
                (6,   13,   1,    None),
                (None, None, 26,  17)]
     x0 = np.array([np.array(row) for row in x0_list])
+
+    u, v = potentials.calc_u_v(c, x0)
+    v_expected = np.array([0, 7, 5, 1])
+    u_expected = np.array([-14, -10, -20])
+    assert (u_expected == u).all() and (v_expected == v).all()
+
     potentials.solve_transportation_potentials(a, b, c, x0)
 
 
