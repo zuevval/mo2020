@@ -14,6 +14,11 @@ def counting(func):
 
 
 def goldenRatio(f, a, b, eps):
+    """ Golden section search.
+        Given a function f with a single local minimum in
+        the interval [a,b], goldenRatio returns a subset
+        interval of length <= eps that contains the minimum.
+    """
     invphi2 = 0.5 * (3 - math.sqrt(5))  # 1/phi^2
 
     (a_k, b_k) = (min(a, b), max(a, b))
@@ -57,3 +62,4 @@ if __name__ == "__main__":
     eps = 0.00001
     print("Uncertainty interval is " + str(goldenRatio(testFunction, a, b, eps)))
     print("Function addressed " + str(testFunction.ncalls) + " times.")
+
