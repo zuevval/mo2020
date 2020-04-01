@@ -1,6 +1,7 @@
+from math import sin, cos, pi
 def function(x, counter):
     counter = counter + 1
-    return pow(x, 2) + 2 * x, counter
+    return sin(pi*x) + cos(pi*x), counter
 
 
 def FibonacciSeq(n):
@@ -10,32 +11,26 @@ def FibonacciSeq(n):
 
 
 def FibonacciMethod(a_k, b_k, n, k, lambda_k, mu_k, delta, prev_function, counter, eps):
-    if b_k-a_k < eps:
-        print("l =", b_k - a_k)
-        print("x_min = ", (a_k + b_k) / 2, "\nFunction addressed", counter - 1, "times")
-        return
     if k <= n - 2:
         if lambda_k==float('inf'):
             lambda_k = a_k + FibonacciSeq(n - k - 1) / FibonacciSeq(n - k + 1) * (b_k - a_k)
-            f1, counter = function(lambda_k, counter)
-            f2 = prev_function
+            if k != 0:
+                f1, counter = function(lambda_k, counter)
+                f2 = prev_function
         if mu_k==float('inf'):
-            mu_k = a_k + FibonacciSeq(n - k - 1) / FibonacciSeq(n - k) * (b_k - a_k)
-            f1 = prev_function
-            f2, counter = function(mu_k, counter)
-        if k==0:
+            mu_k = a_k + FibonacciSeq(n - k) / FibonacciSeq(n - k + 1) * (b_k - a_k)
+            if k != 0:
+                f1 = prev_function
+                f2, counter = function(mu_k, counter)
+        if k == 0:
             f1, counter = function(lambda_k, counter)
             f2, counter = function(mu_k, counter)
     else:
         print("l =", b_k - a_k)
-        if function(lambda_k, counter) < function(lambda_k + delta, counter):
-            b_k = lambda_k
-        else:
-            a_k = lambda_k
-        print("l =", b_k - a_k)
-        print("x_min = ", (a_k + b_k) / 2, "\nFunction addressed", counter - 1, "times")
+        print("x_min = ", (a_k + b_k) / 2, "\nFunction addressed", counter + 1, "times")
         return
 
+    
     if f1 > f2:
         prev_function = f2
         if k < n - 2:
@@ -52,8 +47,8 @@ def FibonacciMethod(a_k, b_k, n, k, lambda_k, mu_k, delta, prev_function, counte
 
 if __name__=="__main__":
     counter = 0  # count how many times function was addressed
-    a = -3
-    b = 5
+    a = 0
+    b = 2
     delta = 0.01
     eps = 0.001
     N = (b - a) / eps
