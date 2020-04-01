@@ -9,7 +9,11 @@ def FibonacciSeq(n):
     return FibonacciSeq(n - 1) + FibonacciSeq(n - 2)
 
 
-def FibonacciMethod(a_k, b_k, n, k, lambda_k, mu_k, delta, prev_function, counter):
+def FibonacciMethod(a_k, b_k, n, k, lambda_k, mu_k, delta, prev_function, counter, eps):
+    if b_k-a_k < eps:
+        print("l =", b_k - a_k)
+        print("x_min = ", (a_k + b_k) / 2, "\nFunction addressed", counter - 1, "times")
+        return
     if k <= n - 2:
         if lambda_k==float('inf'):
             lambda_k = a_k + FibonacciSeq(n - k - 1) / FibonacciSeq(n - k + 1) * (b_k - a_k)
@@ -23,25 +27,27 @@ def FibonacciMethod(a_k, b_k, n, k, lambda_k, mu_k, delta, prev_function, counte
             f1, counter = function(lambda_k, counter)
             f2, counter = function(mu_k, counter)
     else:
+        print("l =", b_k - a_k)
         if function(lambda_k, counter) < function(lambda_k + delta, counter):
             b_k = lambda_k
         else:
             a_k = lambda_k
-        print("x_min = ", (a_k + b_k) / 2, "\nFunction addressed", counter, "times")
+        print("l =", b_k - a_k)
+        print("x_min = ", (a_k + b_k) / 2, "\nFunction addressed", counter - 1, "times")
         return
 
     if f1 > f2:
         prev_function = f2
         if k < n - 2:
-            FibonacciMethod(lambda_k, b_k, n, k + 1, mu_k, float('inf'), delta, prev_function, counter)
+            FibonacciMethod(lambda_k, b_k, n, k + 1, mu_k, float('inf'), delta, prev_function, counter, eps)
         else:
-            FibonacciMethod(lambda_k, b_k, n, k + 1, mu_k, lambda_k, delta, prev_function, counter)
+            FibonacciMethod(lambda_k, b_k, n, k + 1, mu_k, lambda_k, delta, prev_function, counter, eps)
     else:
         prev_function = f1
         if k < n - 2:
-            FibonacciMethod(a_k, mu_k, n, k + 1, float('inf'), lambda_k, delta, prev_function, counter)
+            FibonacciMethod(a_k, mu_k, n, k + 1, float('inf'), lambda_k, delta, prev_function, counter, eps)
         else:
-            FibonacciMethod(lambda_k, b_k, n, k + 1, mu_k, lambda_k, delta, prev_function, counter)
+            FibonacciMethod(lambda_k, b_k, n, k + 1, mu_k, lambda_k, delta, prev_function, counter, eps)
 
 
 if __name__=="__main__":
@@ -49,11 +55,11 @@ if __name__=="__main__":
     a = -3
     b = 5
     delta = 0.01
-    eps = 0.00001
+    eps = 0.001
     N = (b - a) / eps
     n = 1
     while FibonacciSeq(n) < N:
         n = n + 1
 
     print("Fibonacci method:")
-    FibonacciMethod(a, b, n, 0, float('inf'), float('inf'), delta, float('inf'), counter)
+    FibonacciMethod(a, b, n, 0, float('inf'), float('inf'), delta, float('inf'), counter, eps)
