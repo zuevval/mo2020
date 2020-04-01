@@ -68,7 +68,32 @@
 		\item Положим $\lambda_{n} = \lambda_{n-1}$, $\mu_{n} = \lambda_n + \epsilon$. Если функция в точке $\lambda_n$ равна функции в точке $\mu_n$, то положим $a_n = \lambda_n$, $b_n=b_{n-1}$, иначе $a_n = a_{n-1}$, $b_n=\mu_n$. Повторяем пока заданный интервал неопределенности не удовлетворяет заданной точности.
 	\end{enumerate}
 	
-	\section{Результаты решения задачи}
+		\section{Результаты решения задачи}
+	Функция:\\
+	$f(x)=x^2+2x$\\
+	Метод Фибоначчи:
+	\begin{table}[h]
+		\begin{tabular} { | p{0.1\linewidth} | p{0.25\linewidth} | p{0.45\linewidth} |}
+			\hline
+			$\epsilon$ & число обращений & длина интервала неопределенности  \\ \hline
+			0.1 & 12 & 0.06  \\ \hline
+			0.01 & 16 & 0.004 \\ \hline
+			0.001 & 21 & 0.0003   \\ \hline
+		\end{tabular}
+	\end{table}
+	\\
+	\newpage
+	Метод Золотого сечения:
+	\begin{table}[h]
+		\begin{tabular} { | p{0.1\linewidth} | p{0.25\linewidth} | p{0.45\linewidth} |}
+			\hline
+			$\epsilon$ & число обращений & длина интервала неопределенности  \\ \hline
+			0.1 & 12 & 0.03  \\ \hline
+			0.01 & 16 & 0.005  \\ \hline
+			0.001 & 21 & 0.0005   \\ \hline
+		\end{tabular}
+	\end{table}
+	
 	
 	\section{Оценка достоверности полученного результата}
 	
