@@ -1,6 +1,5 @@
 import math
 from typing import Callable, NewType, Tuple
-from numpy import array
 
 Interval = NewType('Interval', Tuple[int, int])
 
@@ -21,7 +20,7 @@ def counting(func: Callable):
     return wrapper
 
 
-def GoldenRatio(f: Callable[[float], float], ab: Interval, eps: float) -> Interval:
+def golden_ratio(f: Callable[[float], float], ab: Interval, eps: float) -> Interval:
     """
         Golden section search.
 
