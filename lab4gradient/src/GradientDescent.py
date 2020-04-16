@@ -54,9 +54,9 @@ def gradient_descent(
         x_k = x_k - dot(alpha_k, grad_x_k)
 
 
-def run_gradient_descent(f: Callable[[array], float],
-                         grad: Callable[[array], array],
-                         x0: array, eps: float = 0.1,
+def run_gradient_descent(f: Callable[[array], float] = sample_function,
+                         grad: Callable[[array], array] = sample_function_gradient,
+                         x0: array = array([0., 0.]), eps: float = 0.1,
                          output_filename: str = "steps.txt") -> List[array]:
     """
     runs steepest descent minimization algorithm and logs position on every

@@ -1,1 +1,1 @@
-from . import GoldenSelection
+from . import GoldenSelection, GradientDescent, Newton
