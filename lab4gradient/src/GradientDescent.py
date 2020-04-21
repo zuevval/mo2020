@@ -13,8 +13,9 @@ def sample_function(
 ) -> float:
     """
         Vector function used for testing.
+
         in: x: np.array -  point in R^n
-        out: test_function(x): float - function at given x
+        out: sample_function(x): float - function at given x
     """
     return pow(x[0], 2) + pow(x[1], 2) + cos(x[0] + 3 * x[1]) - x[0] + 2 * x[1]
 
@@ -23,9 +24,10 @@ def sample_function_gradient(
         x: Point
 ) -> Vector:
     """
-        Gradient of test_function above.
+        Gradient of sample_function above.
+
         in: x: np.array - point in R^n
-        out: test_function_gradient(x): np.array - vector of gradient at given x
+        out: sample_function_gradient(x): np.array - vector of gradient at given x
     """
     return Vector([-sin(x[0] + 3 * x[1]) + 2 * x[0] - 1, -3 * sin(x[0] + 3 * x[1]) + 2 * x[1] + 2])
 
@@ -38,6 +40,7 @@ def gradient_descent(
 ) -> Point:
     """
         Minimizes n-dimensional function.
+
         in: function: Callable[[np.array], float] - function to minimize
             gradient: Callable[[np.array], np.array] - gradient of function f
             x0: np.array - starting point
@@ -48,25 +51,29 @@ def gradient_descent(
     while True:
         yield x_k
         grad_x_k = gradient(x_k)
-        if pow(linalg.norm(grad_x_k), 2) < eps:
+        grad_x_k_norm = linalg.norm(grad_x_k)
+        if pow(grad_x_k_norm, 2) < eps:
             return x_k
         alpha_k = golden_ratio(lambda alpha: function(x_k - dot(alpha, grad_x_k)), (0, 10), eps)
         x_k = x_k - dot(alpha_k, grad_x_k)
 
 
-def run_gradient_descent(f: Callable[[array], float] = sample_function,
-                         grad: Callable[[array], array] = sample_function_gradient,
-                         x0: array = array([0., 0.]), eps: float = 0.1,
-                         output_filename: str = "steps.txt") -> List[array]:
+def run_gradient_descent(
+        f: Callable[[Point], float] = sample_function,
+        grad: Callable[[Point], Vector] = sample_function_gradient,
+        x0: Point = Point([0., 0.]),
+        eps: float = 0.1,
+        output_filename: str = "steps.txt"
+) -> List[Point]:
     """
-    runs steepest descent minimization algorithm and logs position on every
-    iteration to output file
-    :param f: function to be minimized, f: R^n->R
-    :param grad: gradient of `f`, grad: R^n->R^n
-    :param x0: starting point, x0 in R^n
-    :param eps: exit criteria (when norm(grad) < eps - stop)
-    :param output_filename: path to desired output file including extension
-    :return: array of points visited while running algorithm, each in R^n
+        Runs steepest descent minimization algorithm and logs position on every iteration to output file.
+        
+        in: function: Callable[[np.array], float] - function to minimize
+            gradient: Callable[[np.array], np.array] - gradient of function f
+            x0: np.array - starting point
+            eps: float - stopping criterion
+            output_filename: path to desired output file including extension
+        out: steps: List[np.array] - array of points visited while running algorithm, each in R^n
     """
     steps = list(gradient_descent(f, grad, x0, eps))
     with open(output_filename, "w+") as file_out:
