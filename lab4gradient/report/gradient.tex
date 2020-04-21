@@ -10,7 +10,7 @@
 	k := 0\;
 	\Do{$||\nabla f(x_k)||^2 \geq eps$}{
 		Вычисляем $\nabla f(x_k)$\;
-		Определяем $\alpha_k$, исходя из условия $min f(x_k - \alpha \nabla f(x_k)), \alpha \geq 0$\;
+		Определяем $\alpha_k := \arg\min_{\alpha} f(x_k - \alpha \nabla f(x_k)), \alpha \geq 0$\;
 		$x_{k+1} := x_k - \alpha_k \nabla f(x_k)$\;
 		$k := k + 1$\;
 	}
