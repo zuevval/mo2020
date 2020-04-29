@@ -1,0 +1,36 @@
+\documentclass[main.tex]{subfiles}
+
+\begin{document}
+	\section{Ответы на вопросы}
+	\emph{Вопрос.} Почему выбран квадрат нормы градиента функции цели в условии окончания? \\
+	\emph{Ответ.} Для выхода из итерационного процесса могут быть использованы два равносильных условия:
+	\begin{equation}\label{eq:stopping1}
+		\norm{\nabla f} \le \varepsilon
+	\end{equation}
+	\begin{equation}\label{eq:stopping2}
+		\norm{\nabla f}^2 \le \overline{\varepsilon}, \overline{\varepsilon} = \varepsilon^2 
+	\end{equation}
+	Если выбрана первая или бесконечная норма, т. е. $\norm{\vec{x}}_1 := \sum_{k=1}^{n}x_k$ или $\norm{\vec{x}}_{\infty} := \max x_k$, для упрощения вычислений легче пользоваться критерием (\ref{eq:stopping1}). Если вторая норма $\norm{\vec{x}}_2 := \sqrt{\sum_{k=1}^{n}x_k^2}$, то с точки зрения вычислений проще пользоваться критерием (\ref{eq:stopping2}), что и осуществлено в данной работе.\\
+	\\
+	\emph{Вопрос.} Поясните подробнее вычислительный эксперимент для получения оценок $m, M: m\norm{y}^2 \le y^{T}H(x)y \le M\norm{y}^2 \forall y \in \mathds{R}^n \forall x \in S$, где $S \subset \mathds{R}^n$ -- множество, на котором ищем $m, M$ \\
+	\emph{Ответ.} Заметим, что 
+	$$m = \inf_{\norm{y=1}=1, x \in S} \norm{y^{T}H(x)y}$$
+	$$M = \sup_{\norm{y=1}=1, x \in S} \norm{y^{T}H(x)y}$$
+	Множество $S$ удобно задать прямоугольником. Тогда алгоритм численного поиска таков.\\
+	Рассматриваем двумерный случай. Пусть $h_{11}(\vec{x}), h_{12}(\vec{x}) = h_{21}(\vec{x}), h_{22}(\vec{x})$ -- коэффициенты матрицы Гессе, $S=[\vec{a};\vec{b}]$. Зададим малые числа $\delta_1, \delta_2, \delta_\phi$\\
+	\begin{algorithm}[H]\label{gradient}
+		$m := \infty$\;
+		$M := -\infty$\;
+		\For{$x_1=a_1; x_1 \le b_1; x_1 += \delta_1$}{
+			\For{$x_2=a_2; x_2 \le b_2; x_2 += \delta_2$}{
+				\For{$\phi=0; \phi \le 2*\pi; \phi += \delta_\phi$}{
+					$y := y=\begin{pmatrix} \cos(\phi)\\ \sin(\phi)\end{pmatrix}$\;
+					$H := y^T H\left(\begin{pmatrix}x_1\\x_2\end{pmatrix}\right) y$\;
+					\If{$m > H$}{$m=H$\;}
+					\If{$M < H$}{$M=H$\;}
+				}
+			}
+		}
+	\end{algorithm}
+	Поскольку производные $h_{11}, h_{12}, h_{22}$ ограниченны, то с измельчением частот дискретизации $\delta_1, \delta_2, \delta_\phi$ точность вычисления $m$, $M$ возрастает.
+\end{document}
