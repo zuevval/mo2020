@@ -34,17 +34,28 @@ class CanonicalForm:
         self.A, self.b, self.c = A, b, c
 
 
-def lp_to_canonical(lp: LinearProblem, func, MatrixSigns, VariablesSigns) -> CanonicalForm:
-    cf = cn.Convert(lp.A,lp.b,lp.c, func, MatrixSigns, VariablesSigns)
-    return cf
+def lp_to_canonical(lp: LinearProblem) -> CanonicalForm:
+    # TODO convert to canonical
+    pass
 
-def dual_problem(lp: LinearProblem, func, MatrixSigns, VariablesSigns) -> CanonicalForm:
-    dual_cf = dl.CreateDual(lp.A,lp.b,lp.c, func, MatrixSigns, VariablesSigns)
-    return dual_cf
+
+def dual_problem(cf: CanonicalForm) -> CanonicalForm:
+    # TODO return dual problem
+    pass
+
+
+# def lp_to_canonical(lp: LinearProblem, func, MatrixSigns, VariablesSigns) -> CanonicalForm:
+#     cf = cn.Convert(lp.A,lp.b,lp.c, func, MatrixSigns, VariablesSigns)
+#     return cf
+
+# def dual_problem(lp: LinearProblem, func, MatrixSigns, VariablesSigns) -> CanonicalForm:
+#     dual_cf = dl.CreateDual(lp.A,lp.b,lp.c, func, MatrixSigns, VariablesSigns)
+#     return dual_cf
 
 def back_to_primal(x: np.array, primal: CanonicalForm, dual: CanonicalForm) -> np.array:
     # TODO given a solution of dual problem, restore solution of primal
     pass
+
 
 if __name__ == '__main__':
     A,b,c,func,MatrixSigns,VariablesSigns = et.ReadFile('problem.txt')
