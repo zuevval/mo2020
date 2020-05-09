@@ -21,7 +21,7 @@ class LinearProblem:
 class CanonicalForm:
     """
     c^T*x->min
-    x in S:={x|A*x=b}
+    x in S:={x|A*x=b, x >= 0}
     """
     def __init__(self, A:np.ndarray, b:np.array, c:np.array):
         self.n = len(c)
@@ -34,31 +34,20 @@ class CanonicalForm:
         self.A, self.b, self.c = A, b, c
 
 
-def lp_to_canonical(lp: LinearProblem) -> CanonicalForm:
-    # TODO convert to canonical
-    pass
+def dual_problem(lp: LinearProblem) -> CanonicalForm:
+    A1 = np.transpose(lp.A)
+    c1 = lp.b
+    b1 = -lp.c
+    return CanonicalForm(A=A1, b=b1, c=c1)
 
 
-def dual_problem(cf: CanonicalForm) -> CanonicalForm:
-    # TODO return dual problem
-    pass
-
-
-# def lp_to_canonical(lp: LinearProblem, func, MatrixSigns, VariablesSigns) -> CanonicalForm:
-#     cf = cn.Convert(lp.A,lp.b,lp.c, func, MatrixSigns, VariablesSigns)
-#     return cf
-
-# def dual_problem(lp: LinearProblem, func, MatrixSigns, VariablesSigns) -> CanonicalForm:
-#     dual_cf = dl.CreateDual(lp.A,lp.b,lp.c, func, MatrixSigns, VariablesSigns)
-#     return dual_cf
-
-def back_to_primal(x: np.array, primal: CanonicalForm, dual: CanonicalForm) -> np.array:
+def back_to_primal(x: np.array, primal: LinearProblem, dual: CanonicalForm) -> np.array:
     # TODO given a solution of dual problem, restore solution of primal
     pass
 
 
 if __name__ == '__main__':
-    A,b,c,func,MatrixSigns,VariablesSigns = et.ReadFile('problem.txt')
+    A, b, c, _, _, _ = et.ReadFile('problem.txt')
     A = np.array(A)
     b = np.array(b)
     c = np.array(c)
@@ -67,5 +56,6 @@ if __name__ == '__main__':
         b,
         c
     )
-    cf = lp_to_canonical(lp, func, MatrixSigns, VariablesSigns)
-    dcf = dual_problem(lp, func, MatrixSigns, VariablesSigns)
+    print(A)
+    dcf = dual_problem(lp)
+    print(dcf.A)
