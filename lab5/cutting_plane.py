@@ -6,14 +6,15 @@ from convert_utils import LinearProblem, CanonicalForm,\
 from typing import Callable
 import numpy as np
 import bruteforce
+from simplex import simplex_alg
 
 
 class CuttingPlaneData:
     def __init__(self, xk: np.array, yk:np.array,
                  phi_subgrad: Callable[[np.array], np.array],
                  phi: Callable[[np.array], float], lp: LinearProblem):
-        self.xk, self.phi_subgrad, self.phi, self.lp \
-            = xk, phi_subgrad, phi, lp
+        self.xk, self.yk, self.phi_subgrad, self.phi, self.lp \
+            = xk, yk, phi_subgrad, phi, lp
         self.if_in_omega: Callable[[np.array], bool] \
             = lambda x: phi(x) <= 0
 
@@ -40,8 +41,10 @@ def cutting_plane_iteration(data: CuttingPlaneData)\
 
     # solve linear programming problem
     cf_dual: CanonicalForm = dual_problem(lp_next)
-    # TODO apply simplex method using yk instead of brute force
-    lin_res = bruteforce.bruteforce(cf_dual)
+    #lin_res = simplex_alg(cf_dual, data.yk)
+    #y_k1, Nk = lin_res.x, lin_res.Nk
+    #inv_AMNk = np.linalg.inv(cf_dual.A[:, Nk])
+    lin_res = bruteforce.bruteforce(cf_dual) #  alternative to lines above
     y_k1, inv_AMNk, Nk = lin_res.x, lin_res.inv_AMNk, lin_res.Nk
     x_k1 = back_to_primal(
         x=y_k1, inv_AMNk=inv_AMNk, Nk=Nk, primal=lp_next, dual=cf_dual)
@@ -74,10 +77,12 @@ def cutting_plane_alg(
         logging.debug(data.xk)
         # step 1 (see presentation in Teams, lecture 5, slide 5)
         if data.if_in_omega(data.xk):
+            logging.debug("x_k in omega")
             return data.xk
         # step 2
         data_next = cutting_plane_iteration(copy.deepcopy(data))
         if np.linalg.norm(data_next.xk - data.xk) < eps:
+            logging.debug("x_{k+1} and x_k are close enough to stop")
             return data_next.xk
         data = data_next
     # the code below is normally unreachable
