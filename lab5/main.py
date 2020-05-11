@@ -2,9 +2,11 @@ from typing import Callable
 
 from cutting_plane import cutting_plane_alg as cut_alg
 from convert_utils import LinearProblem
+from math import sqrt
 import numpy as np
 import logging
 import sys
+
 
 
 def example():
@@ -30,10 +32,38 @@ def our_problem():
         phi1 = 3*x[0]**2 + x[1]**2 - 1
         phi2 = x[0]**2 + (x[1] - 0.5)**2 - 0.5
         phi3 = 3*x[0]**2 + x[1]**2-x[2]
-        return np.max([phi1, phi2, phi3])
+        return np.array([phi1, phi2, phi3])
 
-    def phi_subgrad(x: np.array) -> np.array:
-        pass  # TODO
+    def grad_phi(x: np.array, i: int) -> float:
+        if i == 1:
+            df_x = 6*x[0] # производная по x
+            df_y = 2*x[1] # производная по y
+        elif i == 2:
+            df_x = 2*x[0] # производная по x
+            df_y = 2*x[1] - 1 # производная по y
+        elif i == 3:
+            df_x = 2*x[0] # производная по x
+            df_y = 2*x[1] # производная по y
+            df_z = -1 # производная по z
+            return sqrt(pow(df_x,2)+pow(df_y,2) + pow(df_z,2))
+
+        return sqrt(pow(df_x,2)+pow(df_y,2))
+
+    def I(x: np.array, m: int) -> list:
+        I = []
+        i = 0
+        phi_values = phi(x)
+        maxPhi = np.max(phi_values[0], phi_values[1], phi_values[2])
+        while i < m:
+            if phi_values[i] == maxPhi:
+                I.append(i + 1) # для наглядности i + 1, чтоб номера индексов совпали с номером ограничения 
+            i = i + 1
+        return I
+
+    def phi_subgrad(x: np.array) -> float:
+        m = 3 # количество ограничений 
+        I_array = I(x,m)
+        return grad_phi(x, I_array[0]) # можно любой индекс, возьмем первый
 
     A = np.array([
         [1, 0, 0],
@@ -54,7 +84,7 @@ def our_problem():
 if __name__ == "__main__":
     logging.basicConfig(stream=sys.stderr, level=logging.DEBUG)
     logging.info("------- simple example -------")
-    example()
+    #example()
     logging.info("-------- our problem ---------")
     our_problem()
 
