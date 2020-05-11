@@ -70,9 +70,11 @@ def cutting_plane_alg(
         # step 1 (see presentation in Teams, lecture 5, slide 5)
         if data.if_in_omega(data.xk):
             return data.xk
+        # step 2
         data_next = cutting_plane_iteration(copy.deepcopy(data))
         if np.norm(data_next.xk - data.xk) < eps:
             return data_next.xk
+    # the code below is normally unreachable
     logging.warning("cutting-plane method "
                     "reached maximal number of iterations")
     return np.array([np.inf for _ in range(len(data.xk))])
