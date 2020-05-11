@@ -20,8 +20,10 @@ class CuttingPlaneData:
 
 def starting_stage(lp: LinearProblem) -> [np.array, np.array]:
     cf: CanonicalForm = dual_problem(lp)
-    y0 = bruteforce.bruteforce(cf)  # TODO solve with simplex method (?)
-    x0 = back_to_primal(y0, lp, cf)  # TODO implement back_to_primal
+    # TODO solve with simplex algorithm (?)
+    lin_solution = bruteforce.bruteforce(cf)
+    y0, inv_AMNk, Nk = lin_solution.x, lin_solution.inv_AMNk, lin_solution.Nk
+    x0 = back_to_primal(x=y0, inv_AMNk=inv_AMNk, Nk=Nk, primal=lp, dual=cf)
     return x0, y0
 
 
@@ -39,8 +41,10 @@ def cutting_plane_iteration(data: CuttingPlaneData)\
     # solve linear programming problem
     cf_dual: CanonicalForm = dual_problem(lp_next)
     # TODO apply simplex method using yk instead of brute force
-    y_k1 = bruteforce.bruteforce(cf_dual)
-    x_k1 = back_to_primal(x=y_k1, primal=lp_next, dual=cf_dual)
+    lin_res = bruteforce.bruteforce(cf_dual)
+    y_k1, inv_AMNk, Nk = lin_res.x, lin_res.inv_AMNk, lin_res.Nk
+    x_k1 = back_to_primal(
+        x=y_k1, inv_AMNk=inv_AMNk, Nk=Nk, primal=lp_next, dual=cf_dual)
     return CuttingPlaneData(xk=x_k1, yk=y_k1,
                             phi_subgrad=data.phi_subgrad,
                             phi=data.phi, lp=lp_next)
@@ -67,14 +71,16 @@ def cutting_plane_alg(
     data = CuttingPlaneData(xk=x0, yk=y0, phi_subgrad=phi_subgrad,
                             phi=phi, lp=lp)
     for _ in range(max_iter):
+        logging.debug(data.xk)
         # step 1 (see presentation in Teams, lecture 5, slide 5)
         if data.if_in_omega(data.xk):
             return data.xk
         # step 2
         data_next = cutting_plane_iteration(copy.deepcopy(data))
-        if np.norm(data_next.xk - data.xk) < eps:
+        if np.linalg.norm(data_next.xk - data.xk) < eps:
             return data_next.xk
+        data = data_next
     # the code below is normally unreachable
     logging.warning("cutting-plane method "
                     "reached maximal number of iterations")
-    return np.array([np.inf for _ in range(len(data.xk))])
+    return data.xk
