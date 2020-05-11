@@ -1,7 +1,4 @@
 import numpy as np
-import canon as cn
-import enter as et
-import dual as dl
 
 
 class LinearProblem:
@@ -60,15 +57,11 @@ def back_to_primal(x: np.array, inv_AMNk: np.array, Nk:np.array,
 
 
 if __name__ == '__main__':
-    A, b, c, _, _, _ = et.ReadFile('problem.txt')
-    A = np.array(A)
-    b = np.array(b)
-    c = np.array(c)
     lp = LinearProblem(
-        A,
-        b,
-        c
+        A=np.array([[1, 2, 3], [4, 5, 6], [3, 2, 1], [6, 4, 5]]),
+        b=np.array([0, 1, 2, 3]),
+        c=np.array([5, 3, 1])
     )
-    print(A)
+    print(lp.A)
     dcf = dual_problem(lp)
     print(dcf.A)
