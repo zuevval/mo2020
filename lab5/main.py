@@ -32,9 +32,9 @@ def our_problem():
         phi1 = 3*x[0]**2 + x[1]**2 - 1
         phi2 = x[0]**2 + (x[1] - 0.5)**2 - 0.5
         phi3 = 3*x[0]**2 + x[1]**2-x[2]
-        return np.array([phi1, phi2, phi3])
+        return np.max([phi1, phi2, phi3])
 
-    def grad_phi(x: np.array, i: int) -> float:
+    def grad_phi(x: np.array, i: int) -> np.array:
         if i == 1:
             df_x = 6*x[0] # производная по x
             df_y = 2*x[1] # производная по y
