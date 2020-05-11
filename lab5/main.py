@@ -45,9 +45,9 @@ def our_problem():
             df_x = 2*x[0] # производная по x
             df_y = 2*x[1] # производная по y
             df_z = -1 # производная по z
-            return sqrt(pow(df_x,2)+pow(df_y,2) + pow(df_z,2))
+            return np.array([df_x,df_y,df_z])
 
-        return sqrt(pow(df_x,2)+pow(df_y,2))
+        return np.array([df_x,df_y])
 
     def I(x: np.array, m: int) -> list:
         I = []
@@ -60,7 +60,7 @@ def our_problem():
             i = i + 1
         return I
 
-    def phi_subgrad(x: np.array) -> float:
+    def phi_subgrad(x: np.array) -> np.array:
         m = 3 # количество ограничений 
         I_array = I(x,m)
         return grad_phi(x, I_array[0]) # можно любой индекс, возьмем первый
