@@ -28,11 +28,14 @@ def example():
 
 
 def our_problem():
-    def phi(x: np.array) -> float:
+    def phi_components(x: np.array) -> np.array:
         phi1 = 3*x[0]**2 + x[1]**2 - 1
         phi2 = x[0]**2 + (x[1] - 0.5)**2 - 0.5
         phi3 = 3*x[0]**2 + x[1]**2-x[2]
-        return np.max([phi1, phi2, phi3])
+        return np.array([phi1, phi2, phi3])
+
+    def phi(x: np.array) -> float:
+        return np.sum(phi_components(x))
 
     def grad_phi(x: np.array, i: int) -> np.array:
         if i == 1:
@@ -45,17 +48,17 @@ def our_problem():
             df_x = 2*x[0] # производная по x
             df_y = 2*x[1] # производная по y
             df_z = -1 # производная по z
-            return np.array([df_x,df_y,df_z])
+            return np.array([df_x, df_y, df_z])
 
-        return np.array([df_x,df_y])
+        return np.array([df_x, df_y])
 
     def I(x: np.array, m: int) -> list:
         I = []
         i = 0
-        phi_values = phi(x)
+        phi_values = phi_components(x)
         maxPhi = np.max(phi_values[0], phi_values[1], phi_values[2])
         while i < m:
-            if phi_values[i] == maxPhi:
+            if (phi_values[i] - maxPhi) < 1e-5:
                 I.append(i + 1) # для наглядности i + 1, чтоб номера индексов совпали с номером ограничения 
             i = i + 1
         return I
