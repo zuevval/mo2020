@@ -3,6 +3,7 @@ import canon as cn
 import enter as et
 import dual as dl
 
+
 class LinearProblem:
     """
     c^T*x->min

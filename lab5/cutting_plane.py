@@ -13,7 +13,7 @@ class CuttingPlaneData:
                  phi_subgrad: Callable[[np.array], np.array],
                  phi: Callable[[np.array], float], lp: LinearProblem):
         self.xk, self.phi_subgrad, self.phi, self.lp \
-            = xk, phi_subgrad, self.phi, lp
+            = xk, phi_subgrad, phi, lp
         self.if_in_omega: Callable[[np.array], bool] \
             = lambda x: phi(x) <= 0
 
