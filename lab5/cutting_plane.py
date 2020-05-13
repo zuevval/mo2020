@@ -21,7 +21,6 @@ class CuttingPlaneData:
 
 def starting_stage(lp: LinearProblem) -> [np.array, np.array]:
     cf: CanonicalForm = dual_problem(lp)
-    # TODO solve with simplex algorithm (?)
     lin_solution = bruteforce.bruteforce(cf)
     y0, inv_AMNk, Nk = lin_solution.x, lin_solution.inv_AMNk, lin_solution.Nk
     x0 = back_to_primal(x=y0, inv_AMNk=inv_AMNk, Nk=Nk, primal=lp, dual=cf)
@@ -37,6 +36,7 @@ def cutting_plane_iteration(data: CuttingPlaneData)\
     # S_k -> S_[k+1]: append row to matrix and number to vector
     A_next = np.concatenate([data.lp.A, np.array([a_k1])])
     b_next = np.append(data.lp.b, b_k1)
+    logging.debug("added plane: " + str(a_k1) + " * x  <= " + str(b_k1))
     lp_next = LinearProblem(A=A_next, b=b_next, c=data.lp.c)
 
     # solve linear programming problem
@@ -74,7 +74,7 @@ def cutting_plane_alg(
     data = CuttingPlaneData(xk=x0, yk=y0, phi_subgrad=phi_subgrad,
                             phi=phi, lp=lp)
     for _ in range(max_iter):
-        logging.debug(data.xk)
+        # logging.debug(data.xk)
         # step 1 (see presentation in Teams, lecture 5, slide 5)
         if data.if_in_omega(data.xk):
             logging.debug("x_k in omega")
@@ -83,6 +83,8 @@ def cutting_plane_alg(
         data_next = cutting_plane_iteration(copy.deepcopy(data))
         if np.linalg.norm(data_next.xk - data.xk) < eps:
             logging.debug("x_{k+1} and x_k are close enough to stop")
+            np.savetxt("r-vis/data/A.txt", data_next.lp.A)
+            np.savetxt("r-vis/data/b.txt", data_next.lp.b)
             return data_next.xk
         data = data_next
     # the code below is normally unreachable
