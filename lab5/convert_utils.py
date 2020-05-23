@@ -33,30 +33,17 @@ class CanonicalForm:
 
 
 def dual_problem(lp: LinearProblem) -> CanonicalForm:
-    A1 = np.transpose(lp.A)
-    c1 = lp.b
-    b1 = -lp.c
-    return CanonicalForm(A=A1, b=b1, c=c1)
+    A_dual = - lp.A.T
+    b_dual = lp.c
+    c_dual = lp.b
+    return CanonicalForm(A=A_dual, b=b_dual, c=c_dual)
 
 
-def back_to_primal(x: np.array, inv_AMNk: np.array, Nk:np.array,
-                   primal: LinearProblem, dual: CanonicalForm) -> np.array:
-    # TODO remove unused variables
-    """
-    `dual` is a canonical form of linear problem
-    (c[N],x[N])->min, x in S:={x|A[M,N]x[N]<=b[M]}
-    and `primal` is a form with
-    (c1[M]=-b[M], y[M])->min, y in S1:={y|A1[N,M] = b1[N]}
-    A1 = A^T - transposed A, b1 = c
-
-    `x` is a solution of `dual`, `Nk` - its basis, inv_AMNk = A[M,Nk]^-1
-    """
-    # variable names below: see report 1, "primal problem solution restoration"
-    c = dual.b
-    return np.matmul(c, inv_AMNk)
+def back_to_primal(Nk: np.array, primal: LinearProblem) -> np.array:
+    return primal.b[Nk].dot(np.linalg.inv(primal.A[Nk]))
 
 
-if __name__ == '__main__':
+def example():
     lp = LinearProblem(
         A=np.array([[1, 2, 3], [4, 5, 6], [3, 2, 1], [6, 4, 5]]),
         b=np.array([0, 1, 2, 3]),
@@ -65,3 +52,7 @@ if __name__ == '__main__':
     print(lp.A)
     dcf = dual_problem(lp)
     print(dcf.A)
+
+
+if __name__ == '__main__':
+    example()

@@ -23,7 +23,7 @@ def starting_stage(lp: LinearProblem) -> [np.array, np.array]:
     cf: CanonicalForm = dual_problem(lp)
     lin_solution = bruteforce.bruteforce(cf)
     y0, inv_AMNk, Nk = lin_solution.x, lin_solution.inv_AMNk, lin_solution.Nk
-    x0 = back_to_primal(x=y0, inv_AMNk=inv_AMNk, Nk=Nk, primal=lp, dual=cf)
+    x0 = back_to_primal(Nk=Nk, primal=lp)
     return x0, y0
 
 
@@ -45,9 +45,8 @@ def cutting_plane_iteration(data: CuttingPlaneData)\
     #y_k1, Nk = lin_res.x, lin_res.Nk
     #inv_AMNk = np.linalg.inv(cf_dual.A[:, Nk])
     lin_res = bruteforce.bruteforce(cf_dual) #  alternative to lines above
-    y_k1, inv_AMNk, Nk = lin_res.x, lin_res.inv_AMNk, lin_res.Nk
-    x_k1 = back_to_primal(
-        x=y_k1, inv_AMNk=inv_AMNk, Nk=Nk, primal=lp_next, dual=cf_dual)
+    y_k1,Nk = lin_res.x, lin_res.Nk
+    x_k1 = back_to_primal(Nk=Nk, primal=lp_next)
     return CuttingPlaneData(xk=x_k1, yk=y_k1,
                             phi_subgrad=data.phi_subgrad,
                             phi=data.phi, lp=lp_next)
@@ -74,10 +73,12 @@ def cutting_plane_alg(
     data = CuttingPlaneData(xk=x0, yk=y0, phi_subgrad=phi_subgrad,
                             phi=phi, lp=lp)
     for _ in range(max_iter):
-        # logging.debug(data.xk)
+        logging.debug("xk: " + str(data.xk))
         # step 1 (see presentation in Teams, lecture 5, slide 5)
         if data.if_in_omega(data.xk):
             logging.debug("x_k in omega")
+            np.savetxt("r-vis/data/A.txt", data.lp.A)
+            np.savetxt("r-vis/data/b.txt", data.lp.b)
             return data.xk
         # step 2
         data_next = cutting_plane_iteration(copy.deepcopy(data))
