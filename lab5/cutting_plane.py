@@ -42,7 +42,7 @@ def choose_suitable_basis(sv_dual: np.array, lp:LinearProblem) -> np.array:
     assert n >= k_plus
     if n == k_plus:
         return Nk_plus
-    bg = binomial_grid(k0, n-k_plus) # choose n-k_plus out of k0 indices
+    bg = binomial_grid(k0, n-k_plus)  # choose n-k_plus out of k0 indices
     for i in range(bg[-1, -1]):
         Nk_add = subset_by_index(Nk0, bg, i)
         Nk = np.sort(np.append(Nk_add, Nk_plus))
@@ -69,14 +69,15 @@ def cutting_plane_iteration(data: CuttingPlaneData)\
 
     # solve linear programming problem
     cf_dual: CanonicalForm = dual_problem(lp_next)
-    #lin_res = simplex_alg(cf_dual, data.yk)
-    #y_k1, Nk = lin_res.x, lin_res.Nk
-    #inv_AMNk = np.linalg.inv(cf_dual.A[:, Nk])
+    # lin_res = simplex_alg(cf_dual, np.append(data.yk, 0))
+    # y_k1, Nk = lin_res.x, lin_res.Nk
+    # inv_AMNk = np.linalg.inv(cf_dual.A[:, Nk])
     lin_res = bruteforce.bruteforce(cf_dual) #  alternative to lines above
     assert (abs(cf_dual.A.dot(lin_res.x) - cf_dual.b) < 1e-3).all()
     y_k1, Nk = lin_res.x, lin_res.Nk
     Nk = choose_suitable_basis(y_k1, lp_next)
     x_k1 = back_to_primal(Nk=Nk, primal=lp_next)
+    # logging.debug(data.phi(x_k1))
     assert (A_next.dot(x_k1) <= b_next + 1e-3).all()
     return CuttingPlaneData(xk=x_k1, yk=y_k1,
                             phi_subgrad=data.phi_subgrad,
@@ -105,7 +106,7 @@ def cutting_plane_alg(
     data = CuttingPlaneData(xk=x0, yk=y0, phi_subgrad=phi_subgrad,
                             phi=phi, lp=lp)
     for _ in range(max_iter):
-        logging.debug("xk: " + str(data.xk))
+        # logging.debug("xk: " + str(data.xk))
         # step 1 (see presentation in Teams, lecture 5, slide 5)
         if data.if_in_omega(data.xk):
             logging.debug("x_k in omega")

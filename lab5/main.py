@@ -26,6 +26,12 @@ def example():
     logging.info(res_x)
 
 
+def pretty_print(our_res: np.array, phi: callable):
+    our_res[2] += 0.7
+    logging.info(our_res)
+    logging.info("phi(x*): " + str(phi(our_res)))
+
+
 def our_problem():
     def phi_components(x: np.array) -> np.array:
         phi1 = 3*x[0]**2 + x[1]**2 - 1
@@ -44,7 +50,7 @@ def our_problem():
             df_x = 2*x[0] # производная по x
             df_y = 2*x[1] - 1 # производная по y
         elif i == 3:
-            df_x = 2*x[0] # производная по x
+            df_x = 6*x[0] # производная по x
             df_y = 2*x[1] # производная по y
             df_z = -1  # производная по z
             return np.array([df_x, df_y, df_z])
@@ -63,13 +69,12 @@ def our_problem():
         [0, 0, -1],
         [0, 0, 1]
     ])
-    b = np.array([1/np.sqrt(3), 1/np.sqrt(3), 1,
-                  (np.sqrt(2) - 1)/2, 1, 0])
+    b = np.array([0.75, 0.75, 1,
+                 (np.sqrt(2) - 1)/2 - 0.75, 1, 0])
     c = np.array([0, 0, 1])
     lp = LinearProblem(A, b, c)
-    res_x = cut_alg(lp, phi, phi_subgrad)
-    logging.info(res_x)
-    logging.info("phi(x*): " + str(-phi(res_x)))
+    res_x = cut_alg(lp, phi, phi_subgrad, max_iter=15)
+    pretty_print(res_x, phi)
 
 
 if __name__ == "__main__":
