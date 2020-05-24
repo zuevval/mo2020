@@ -7,6 +7,7 @@ from typing import Callable
 import numpy as np
 import bruteforce
 from simplex import simplex_alg
+from utils import subset_by_index, binomial_grid
 
 
 class CuttingPlaneData:
@@ -27,6 +28,31 @@ def starting_stage(lp: LinearProblem) -> [np.array, np.array]:
     return x0, y0
 
 
+def choose_suitable_basis(sv_dual: np.array, lp:LinearProblem) -> np.array:
+    """
+    :param sv_dual: support vector of dual problem to `lp`
+    :param lp: linear problem: x*c -> min, Ax<=b
+    :return: indices `Nk` of basis of vector `sv_dual` chosen so that
+     x:=A[Nk]^(-1)*b[Nk] is a feasible point of problem `lp` (Ax<=b)
+    """
+    tolerance = 1e-3
+    Nk0 = [i for i in range(len(sv_dual)) if np.abs(sv_dual[i]) < tolerance]
+    Nk_plus = [i for i in range(len(sv_dual)) if i not in Nk0]
+    m, n, k0, k_plus = len(lp.A), len(lp.A[0]), len(Nk0), len(Nk_plus)
+    assert n >= k_plus
+    if n == k_plus:
+        return Nk_plus
+    bg = binomial_grid(k0, n-k_plus) # choose n-k_plus out of k0 indices
+    for i in range(bg[-1, -1]):
+        Nk_add = subset_by_index(Nk0, bg, i)
+        Nk = np.sort(np.append(Nk_add, Nk_plus))
+        assert len(Nk) == n
+        if np.abs(np.linalg.det(lp.A[Nk])) < tolerance:
+            continue
+        x = np.linalg.inv(lp.A[Nk]).dot(lp.b[Nk])
+        if (lp.A.dot(x) <= lp.b + tolerance).all():
+            return Nk
+    assert False
 
 
 def cutting_plane_iteration(data: CuttingPlaneData)\
@@ -49,9 +75,9 @@ def cutting_plane_iteration(data: CuttingPlaneData)\
     lin_res = bruteforce.bruteforce(cf_dual) #  alternative to lines above
     assert (abs(cf_dual.A.dot(lin_res.x) - cf_dual.b) < 1e-3).all()
     y_k1, Nk = lin_res.x, lin_res.Nk
+    Nk = choose_suitable_basis(y_k1, lp_next)
     x_k1 = back_to_primal(Nk=Nk, primal=lp_next)
-    logging.debug(A_next[Nk].dot(x_k1) - b_next[Nk])
-    # assert (A_next.dot(x_k1) <= b_next).all() # TODO
+    assert (A_next.dot(x_k1) <= b_next + 1e-3).all()
     return CuttingPlaneData(xk=x_k1, yk=y_k1,
                             phi_subgrad=data.phi_subgrad,
                             phi=data.phi, lp=lp_next)
