@@ -65,7 +65,7 @@ def our_problem():
     ])
     b = np.array([1/np.sqrt(3), 1/np.sqrt(3), 1,
                   (np.sqrt(2) - 1)/2, 1, 0])
-    c = np.array([0, 0, -1])
+    c = np.array([0, 0, 1])
     lp = LinearProblem(A, b, c)
     res_x = cut_alg(lp, phi, phi_subgrad)
     logging.info(res_x)
@@ -74,8 +74,8 @@ def our_problem():
 
 if __name__ == "__main__":
     logging.basicConfig(stream=sys.stderr, level=logging.DEBUG)
-    # logging.info("------- simple example -------")
-    # example()
-    logging.info("-------- our problem ---------")
+    logging.info("\n\n------- simple example -------")
+    example()
+    logging.info("\n\n-------- our problem ---------")
     our_problem()
 

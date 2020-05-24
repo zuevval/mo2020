@@ -22,9 +22,11 @@ class CuttingPlaneData:
 def starting_stage(lp: LinearProblem) -> [np.array, np.array]:
     cf: CanonicalForm = dual_problem(lp)
     lin_solution = bruteforce.bruteforce(cf)
-    y0, inv_AMNk, Nk = lin_solution.x, lin_solution.inv_AMNk, lin_solution.Nk
+    y0, Nk = lin_solution.x, lin_solution.Nk
     x0 = back_to_primal(Nk=Nk, primal=lp)
     return x0, y0
+
+
 
 
 def cutting_plane_iteration(data: CuttingPlaneData)\
@@ -45,8 +47,11 @@ def cutting_plane_iteration(data: CuttingPlaneData)\
     #y_k1, Nk = lin_res.x, lin_res.Nk
     #inv_AMNk = np.linalg.inv(cf_dual.A[:, Nk])
     lin_res = bruteforce.bruteforce(cf_dual) #  alternative to lines above
-    y_k1,Nk = lin_res.x, lin_res.Nk
+    assert (abs(cf_dual.A.dot(lin_res.x) - cf_dual.b) < 1e-3).all()
+    y_k1, Nk = lin_res.x, lin_res.Nk
     x_k1 = back_to_primal(Nk=Nk, primal=lp_next)
+    logging.debug(A_next[Nk].dot(x_k1) - b_next[Nk])
+    # assert (A_next.dot(x_k1) <= b_next).all() # TODO
     return CuttingPlaneData(xk=x_k1, yk=y_k1,
                             phi_subgrad=data.phi_subgrad,
                             phi=data.phi, lp=lp_next)
@@ -70,6 +75,7 @@ def cutting_plane_alg(
     :return: solution of problem cTx->min, x in Omega
     """
     x0, y0 = starting_stage(lp)
+    assert (lp.A.dot(x0) <= lp.b).all()
     data = CuttingPlaneData(xk=x0, yk=y0, phi_subgrad=phi_subgrad,
                             phi=phi, lp=lp)
     for _ in range(max_iter):

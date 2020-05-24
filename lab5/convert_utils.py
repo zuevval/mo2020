@@ -40,7 +40,8 @@ def dual_problem(lp: LinearProblem) -> CanonicalForm:
 
 
 def back_to_primal(Nk: np.array, primal: LinearProblem) -> np.array:
-    return primal.b[Nk].dot(np.linalg.inv(primal.A[Nk]))
+    A_inv = np.linalg.inv(primal.A[Nk])
+    return A_inv.dot(primal.b[Nk])
 
 
 def example():
