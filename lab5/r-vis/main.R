@@ -9,9 +9,9 @@ phi <- function(x, y, z) {
   phi3 <- 3*x^2+y^2-z-1
   return(max(c(phi1, phi2, phi3)))
 }
-bounds.ax = -sqrt(3)
-bounds.bx = sqrt(3)
-bounds.ay = (1-sqrt(2))/2-1
+bounds.ax = -0.75
+bounds.bx = 1
+bounds.ay = -1
 bounds.by = 1
 bounds.az = -1
 bounds.bz = 0
@@ -47,7 +47,8 @@ plotrgl(xlim = c(bounds.ax, bounds.bx),
         type = 'n')
 
 # Add planes
-planes3d(-1.15470054 -0.41421356 -1., 0.7095598854801188, col = 'red', alpha = 0.6)
-planes3d(0.25152852,  0.70118446, -1., 1.107098264201411, col = 'orange', alpha = 0.6)
-planes3d(0.25152852,  0.39570632, -1., 1.0233292240896534, col = 'blue', alpha = 0.6)
+planes3d(-4.5,-0.41421356, -1., 2.730, col = 'red', alpha = 0.6)
+planes3d(-2.19280904, -0.41421356, -1., 1.4435, col = 'orange', alpha = 0.6)
+planes3d(-0.97903939, -0.41421356, -1., 1.122, col = 'blue', alpha = 0.6)
+planes3d(-1.58592422,  0.65671751, -1., 1.3174, col = 'green', alpha = 0.6)
 
