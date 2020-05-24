@@ -26,12 +26,6 @@ def example():
     logging.info(res_x)
 
 
-def pretty_print(our_res: np.array, phi: callable):
-    our_res[2] += 0.7
-    logging.info(our_res)
-    logging.info("phi(x*): " + str(phi(our_res)))
-
-
 def our_problem():
     def phi_components(x: np.array) -> np.array:
         phi1 = 3*x[0]**2 + x[1]**2 - 1
@@ -70,11 +64,15 @@ def our_problem():
         [0, 0, 1]
     ])
     b = np.array([0.75, 0.75, 1,
-                 (np.sqrt(2) - 1)/2 - 0.75, 1, 0])
+                 (np.sqrt(2) - 1)/2 - 0.3, 1, 0])
     c = np.array([0, 0, 1])
     lp = LinearProblem(A, b, c)
     res_x = cut_alg(lp, phi, phi_subgrad, max_iter=15)
-    pretty_print(res_x, phi)
+    logging.info(res_x)
+    logging.info("phi(x*): " + str(phi(res_x)))
+    logging.info("cost function c^T*x:" + str(c.dot(res_x)))
+    x_expected = [0, 0]
+    logging.info("expected:" + str(3*x_expected[0]**2 + x_expected[1]**2 - 1))
 
 
 if __name__ == "__main__":
