@@ -64,10 +64,10 @@ def our_problem():
         [0, 0, 1]
     ])
     b = np.array([0.75, 0.75, 1,
-                 (np.sqrt(2) - 1)/2 - 0.3, 1, 0])
+                 (np.sqrt(2) - 1)/2 - 0.15, 1, 0])
     c = np.array([0, 0, 1])
     lp = LinearProblem(A, b, c)
-    res_x = cut_alg(lp, phi, phi_subgrad, max_iter=15)
+    res_x = cut_alg(lp, phi, phi_subgrad, max_iter=20, eps=0.01)
     logging.info(res_x)
     logging.info("phi(x*): " + str(phi(res_x)))
     logging.info("cost function c^T*x:" + str(c.dot(res_x)))
